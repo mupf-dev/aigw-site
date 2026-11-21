@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs · ai-gw</title>
+<meta name="description" content="Concepts, operations and measurements of ai-gw (AI gateway).">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-gw">
+<meta property="og:title" content="Docs · ai-gw">
+<meta property="og:description" content="Concepts, operations and measurements of ai-gw (AI gateway).">
+<meta property="og:image" content="https://mupf-dev.github.io/aigw-site/assets/img/ui/uebersicht-dunkel.webp">
+<meta property="og:locale" content="en_US">
+<meta name="theme-color" content="#0e1115">
+<link rel="canonical" href="../../en/docs/index.html">
+<link rel="alternate" hreflang="de" href="../../doku/index.html">
+<link rel="alternate" hreflang="en" href="../../en/docs/index.html">
+<link rel="alternate" hreflang="x-default" href="../../doku/index.html">
+<link rel="stylesheet" href="../../assets/style.css?v=dd200eddc7">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body class="k-docs-index">
+<a class="skip" href="#inhalt">Skip to content</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="../../en/index.html" aria-label="ai-gw (AI-Gateway) – Home">
+      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><span class="brand-text"><span class="brand-name">ai-gw</span><span class="brand-sub">AI-Gateway · alpha</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnav">Menu</button>
+    <nav id="hauptnav" class="mainnav" aria-label="Main navigation"><ul><li><a href="../../en/index.html">Home</a></li><li><a href="../../en/features.html">Features</a></li><li><a href="../../en/admin-ui.html">Admin UI</a></li><li><a href="../../en/architecture.html">Architecture</a></li><li><a href="../../en/security.html">Security</a></li><li><a href="../../en/docs/index.html" aria-current="page">Docs</a></li><li><a href="../../en/quickstart.html">Quickstart</a></li><li><a href="../../en/roadmap.html">Roadmap</a></li><li><a href="../../en/contribute.html">Contribute</a></li></ul></nav>
+    <div class="tools">
+      <form class="search" role="search" action="../../en/search.html" method="get">
+        <label for="q" class="sr-only">Search</label>
+        <input id="q" name="q" type="search" placeholder="Search …" autocomplete="off">
+      </form>
+      <a class="lang-switch" href="../../doku/index.html" hreflang="de" lang="de" aria-label="Deutsche Fassung dieser Seite"><span aria-hidden="true">DE</span><span class="lang-long" aria-hidden="true">Deutsch</span></a>
+    </div>
+  </div>
+</header>
+<main id="inhalt" tabindex="-1">
+<header class="page-head"><div class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../index.html">Home</a></li><li><span aria-current="page">Docs</span></li></ol></nav><p class="eyebrow">AI-Gateway · Docs</p><h1>Docs</h1><p class="lead">Condensed public editions of ai-gw's concept documents and operations handbook. The full documents (German) live in the repository under <code>docs/</code>.</p></div></header><div class="page"><div class="content"><h2 id="konzept">Concepts <span class="count">4 Pages</span></h2><ul class="cards doc-cards"><li><a href="mcp-gateway.html"><strong>MCP gateway</strong><span>ai-gw as an MCP server for clients and as an MCP client to connected servers – with grants per team and key down to the tool level, credentials, limits, logging and SSRF protection.</span></a></li><li><a href="tool-policies.html"><strong>Tool inventory and tool policies</strong><span>ai-gw records every tool that applications send along in model requests, detects changed or suspicious descriptions and enforces policies – from removing individual tools to approval on a case-by-case basis.</span></a></li><li><a href="wasm-plugins.html"><strong>WASM plugins</strong><span>Custom plugin logic as a WebAssembly component – in a sandbox inside the gateway process, with limits for CPU, time and memory, hot reload and optional mandatory Ed25519 signatures.</span></a></li><li><a href="workload-identities.html"><strong>Workload and agent identities</strong><span>AI agents and services sign in with signed access tokens – primarily from Microsoft Entra Agent ID – instead of a distributed gateway key. The token acts exactly like the key to which the identity is mapped.</span></a></li></ul><h2 id="betrieb">Operations and measurements <span class="count">2 Pages</span></h2><ul class="cards doc-cards"><li><a href="performance.html"><strong>Performance and load comparison</strong><span>Test setup and results of the latency and load tests of ai-gw, plus a comparison with the LiteLLM proxy under identical conditions – with method, raw values and the limits of what the results show.</span></a></li><li><a href="operations.html"><strong>Operations and hardening</strong><span>Recommendations for operating ai-gw – network and listeners, secrets, data storage and multiple instances, admin access, data plane, plugins, monitoring and audit.</span></a></li></ul></div></div>
+</main>
+<footer class="site-footer">
+  <div class="bar">
+    <div class="foot-brand"><svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><p><strong>ai-gw</strong> (AI-Gateway) – Open-source, self-hosted AI gateway in Rust – one endpoint for many AI providers. One binary for gateway, admin API and admin UI.</p></div>
+    <p>Documentation under <a href="https://creativecommons.org/licenses/by/4.0/deed.en" rel="license noopener">CC BY 4.0</a>, code under AGPL-3.0-or-later. No cookies, no tracking, no third-party resources.</p>
+    <nav aria-label="Legal and service"><p><a href="../../en/contribute.html#license">License</a> · <a href="../../en/contribute.html#security">Report a vulnerability</a> · <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">Source code</a> · <a href="../../en/search.html">Search</a> · <a href="../../en/legal-notice.html">Legal notice</a> · <a href="../../en/privacy.html">Privacy policy</a></p></nav>
+  </div>
+</footer>
+<script src="../../assets/site.js?v=462edbf839" defer></script>
+</body>
+</html>

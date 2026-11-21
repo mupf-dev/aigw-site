@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP gateway · ai-gw</title>
+<meta name="description" content="ai-gw as an MCP server for clients and as an MCP client to connected servers – with grants per team and key down to the tool level, credentials, limits, logging and SSRF protection.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-gw">
+<meta property="og:title" content="MCP gateway · ai-gw">
+<meta property="og:description" content="ai-gw as an MCP server for clients and as an MCP client to connected servers – with grants per team and key down to the tool level, credentials, limits, logging and SSRF protection.">
+<meta property="og:image" content="https://mupf-dev.github.io/aigw-site/assets/img/ui/uebersicht-dunkel.webp">
+<meta property="og:locale" content="en_US">
+<meta name="theme-color" content="#0e1115">
+<link rel="canonical" href="../../en/docs/mcp-gateway.html">
+<link rel="alternate" hreflang="de" href="../../doku/mcp-gateway.html">
+<link rel="alternate" hreflang="en" href="../../en/docs/mcp-gateway.html">
+<link rel="alternate" hreflang="x-default" href="../../doku/mcp-gateway.html">
+<link rel="stylesheet" href="../../assets/style.css?v=dd200eddc7">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body class="k-doc">
+<a class="skip" href="#inhalt">Skip to content</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="../../en/index.html" aria-label="ai-gw (AI-Gateway) – Home">
+      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><span class="brand-text"><span class="brand-name">ai-gw</span><span class="brand-sub">AI-Gateway · alpha</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnav">Menu</button>
+    <nav id="hauptnav" class="mainnav" aria-label="Main navigation"><ul><li><a href="../../en/index.html">Home</a></li><li><a href="../../en/features.html">Features</a></li><li><a href="../../en/admin-ui.html">Admin UI</a></li><li><a href="../../en/architecture.html">Architecture</a></li><li><a href="../../en/security.html">Security</a></li><li><a href="../../en/docs/index.html" aria-current="page">Docs</a></li><li><a href="../../en/quickstart.html">Quickstart</a></li><li><a href="../../en/roadmap.html">Roadmap</a></li><li><a href="../../en/contribute.html">Contribute</a></li></ul></nav>
+    <div class="tools">
+      <form class="search" role="search" action="../../en/search.html" method="get">
+        <label for="q" class="sr-only">Search</label>
+        <input id="q" name="q" type="search" placeholder="Search …" autocomplete="off">
+      </form>
+      <a class="lang-switch" href="../../doku/mcp-gateway.html" hreflang="de" lang="de" aria-label="Deutsche Fassung dieser Seite"><span aria-hidden="true">DE</span><span class="lang-long" aria-hidden="true">Deutsch</span></a>
+    </div>
+  </div>
+</header>
+<main id="inhalt" tabindex="-1">
+<header class="page-head"><div class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../index.html">Home</a></li><li><a href="index.html">Docs</a></li><li><span aria-current="page">MCP gateway</span></li></ol></nav><p class="eyebrow">Concepts</p><h1>MCP gateway</h1><p class="lead">ai-gw as an MCP server for clients and as an MCP client to connected servers – with grants per team and key down to the tool level, credentials, limits, logging and SSRF protection.</p><p class="meta">Adapted from: Concept 15 “MCP gateway”</p></div></header><div class="page with-toc"><nav class="toc" aria-label="Contents of this page"><p class="toc-title">On this page</p><ol><li><a href="#rollen">Roles</a></li><li><a href="#namensraum">Namespace</a></li><li><a href="#freigaben">Grants</a></li><li><a href="#upstream">Upstream servers</a></li><li><a href="#ssrf">SSRF protection</a></li><li><a href="#beobachtung">Limits, log and metrics</a></li><li><a href="#verwaltung">Administration</a></li><li><a href="#abgrenzung">Distinction from tool policies</a></li><li><a href="#offen">Open items</a></li></ol></nav><div class="content"><article class="doc"><p>The Model Context Protocol (MCP) connects AI applications with tools and data sources. In organisations, MCP servers quickly proliferate, with their credentials stored separately in every IDE and every agent. ai-gw consolidates them: clients talk to one endpoint and see exactly the tools, prompts and resources granted to their key, and the gateway sets the upstream credentials, applies limits and logs every tool call.</p>
+<h2 id="rollen">Roles<a class="anchor" href="#rollen" aria-label="Link to this section">#</a></h2>
+<ul><li><strong>MCP server</strong> for clients (agents, IDEs) over <strong>Streamable HTTP</strong> at <code>/mcp</code> (all granted servers merged) and <code>/mcp/{server}</code> (a single server).</li><li><strong>MCP client</strong> to the connected upstream servers over Streamable HTTP, the older HTTP+SSE, or <strong>stdio</strong> (as a managed process, only after explicit enablement).</li></ul>
+<p>The implementation is in-house: JSON-RPC 2.0 and the transports are implemented in the gateway itself. The gateway needs both sides at once, with its own session, permission and pool logic, and passes messages through largely unchanged – unknown fields are preserved. For outbound connections it uses the same HTTP stack with SSRF checks as for the model providers.</p>
+<h2 id="namensraum">Namespace<a class="anchor" href="#namensraum" aria-label="Link to this section">#</a></h2>
+<p>Under <code>/mcp</code>, the tools and prompts of all granted servers are merged and prefixed with the server name (<code>&lt;server&gt;__&lt;tool&gt;</code>), so that identically named tools from different servers do not shadow each other. Resources keep their URI; the gateway remembers per session which server supplied them. Lists from the upstream servers are cached for a few minutes; an unreachable server is missing from the merged result instead of blocking the whole list.</p>
+<h2 id="freigaben">Grants<a class="anchor" href="#freigaben" aria-label="Link to this section">#</a></h2>
+<pre><span class="code-lang">yaml</span><code class="lang-yaml">apiVersion: aigw/v1alpha1
+kind: McpGrant
+metadata: {name: platform-github}
+spec:
+  server: github
+  subject: {level: team, target: platform}     # team | api-key
+  tools: ["get_*", "search_*", "!get_secret*"]  # empty = all</code></pre>
+<ul><li><strong>Default: nothing.</strong> Without a matching grant, a key sees no server.</li><li><code>tools</code> are glob patterns on the tool name at the upstream; <code>!pattern</code> excludes. An empty list or exclusions only mean “all remaining tools”.</li><li><strong>The team is the upper bound</strong> – as with model grants: if a key belongs to a team, a team grant for the server is required; key grants narrow it further.</li><li>The gateway rejects calls to tools that are not granted, even if a client guesses the name.</li></ul>
+<h2 id="upstream">Upstream servers<a class="anchor" href="#upstream" aria-label="Link to this section">#</a></h2>
+<p>An <code>McpServer</code> describes transport, address and credentials. Secrets (bearer tokens, header values) are stored encrypted in the database, like those of the model providers, or are given as a reference to the environment or a file; when saving, the gateway checks that the reference can be resolved. For stdio servers, ai-gw starts and monitors the process itself – this is blocked by default and must be enabled in the startup configuration.</p>
+<h2 id="ssrf">SSRF protection<a class="anchor" href="#ssrf" aria-label="Link to this section">#</a></h2>
+<p>Upstream addresses are checked when saving and on every connection attempt, after name resolution. Private, loopback and link-local ranges are blocked unless they are explicitly and narrowly allowed; the gateway does not follow redirects. This way an MCP server entry cannot serve as a stepping stone into the internal network.</p>
+<h2 id="beobachtung">Limits, log and metrics<a class="anchor" href="#beobachtung" aria-label="Link to this section">#</a></h2>
+<ul><li>Every tool call (and every list request) counts as a request in the limits of key, team and organisation; hard budget limits also block tool calls. In addition there are upper bounds for MCP sessions per key and team, timeouts and a maximum message size.</li><li>Every tool call appears in the request log with server, tool, status, duration and key; arguments and results only according to the payload policy (sizes only, masked or complete).</li><li>Prometheus metrics count calls and duration per server, tool and status; traces pass the trace context on to the upstream.</li></ul>
+<h2 id="verwaltung">Administration<a class="anchor" href="#verwaltung" aria-label="Link to this section">#</a></h2>
+<p>MCP servers and grants are managed through the admin API (<code>mcp-servers</code>, <code>mcp-grants</code>), the admin UI (“MCP servers” page with connection state and grants) or as a GitOps manifest. Agents that sign in with a signed token (see <a href="workload-identities.html">Workload and agent identities</a>) also receive the grants of the mapped key.</p>
+<h2 id="abgrenzung">Distinction from tool policies<a class="anchor" href="#abgrenzung" aria-label="Link to this section">#</a></h2>
+<p>The MCP gateway controls which tools a client reaches <strong>through ai-gw</strong>. Many applications, however, connect MCP servers themselves and only send the tool definitions along in the model request. For this case there are the <a href="tool-policies.html">tool inventory and tool policies</a>.</p>
+<h2 id="offen">Open items<a class="anchor" href="#offen" aria-label="Link to this section">#</a></h2>
+<p>Sessions across multiple instances (sticky sessions or a shared session store), resumption of SSE streams, OAuth to the upstream, grants at resource and prompt level, and the plugin chain on tool arguments and results are not yet implemented.</p></article><nav class="pager" aria-label="More pages"><span></span><a rel="next" href="tool-policies.html">Tool inventory and tool policies <span aria-hidden="true">→</span></a></nav></div></div>
+</main>
+<footer class="site-footer">
+  <div class="bar">
+    <div class="foot-brand"><svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><p><strong>ai-gw</strong> (AI-Gateway) – Open-source, self-hosted AI gateway in Rust – one endpoint for many AI providers. One binary for gateway, admin API and admin UI.</p></div>
+    <p>Documentation under <a href="https://creativecommons.org/licenses/by/4.0/deed.en" rel="license noopener">CC BY 4.0</a>, code under AGPL-3.0-or-later. No cookies, no tracking, no third-party resources.</p>
+    <nav aria-label="Legal and service"><p><a href="../../en/contribute.html#license">License</a> · <a href="../../en/contribute.html#security">Report a vulnerability</a> · <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">Source code</a> · <a href="../../en/search.html">Search</a> · <a href="../../en/legal-notice.html">Legal notice</a> · <a href="../../en/privacy.html">Privacy policy</a></p></nav>
+  </div>
+</footer>
+<script src="../../assets/site.js?v=462edbf839" defer></script>
+</body>
+</html>

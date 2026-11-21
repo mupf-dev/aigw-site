@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tool-Inventar und Tool-Richtlinien · ai-gw</title>
+<meta name="description" content="ai-gw erfasst jedes Tool, das Anwendungen in Modellanfragen mitschicken, erkennt geänderte oder verdächtige Beschreibungen und setzt Richtlinien durch – vom Entfernen einzelner Tools bis zur Freigabe im Einzelfall.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-gw">
+<meta property="og:title" content="Tool-Inventar und Tool-Richtlinien · ai-gw">
+<meta property="og:description" content="ai-gw erfasst jedes Tool, das Anwendungen in Modellanfragen mitschicken, erkennt geänderte oder verdächtige Beschreibungen und setzt Richtlinien durch – vom Entfernen einzelner Tools bis zur Freigabe im Einzelfall.">
+<meta property="og:image" content="https://mupf-dev.github.io/aigw-site/assets/img/ui/uebersicht-dunkel.webp">
+<meta property="og:locale" content="de_DE">
+<meta name="theme-color" content="#0e1115">
+<link rel="canonical" href="../doku/tool-richtlinien.html">
+<link rel="alternate" hreflang="de" href="../doku/tool-richtlinien.html">
+<link rel="alternate" hreflang="en" href="../en/docs/tool-policies.html">
+<link rel="alternate" hreflang="x-default" href="../doku/tool-richtlinien.html">
+<link rel="stylesheet" href="../assets/style.css?v=dd200eddc7">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body class="k-doc">
+<a class="skip" href="#inhalt">Zum Inhalt springen</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="../index.html" aria-label="ai-gw (AI-Gateway) – Startseite">
+      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><span class="brand-text"><span class="brand-name">ai-gw</span><span class="brand-sub">AI-Gateway · alpha</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnav">Menü</button>
+    <nav id="hauptnav" class="mainnav" aria-label="Hauptnavigation"><ul><li><a href="../index.html">Start</a></li><li><a href="../funktionen.html">Funktionen</a></li><li><a href="../oberflaeche.html">Oberfläche</a></li><li><a href="../architektur.html">Architektur</a></li><li><a href="../sicherheit.html">Sicherheit</a></li><li><a href="../doku/index.html" aria-current="page">Doku</a></li><li><a href="../schnellstart.html">Schnellstart</a></li><li><a href="../roadmap.html">Roadmap</a></li><li><a href="../mitmachen.html">Mitmachen</a></li></ul></nav>
+    <div class="tools">
+      <form class="search" role="search" action="../suche.html" method="get">
+        <label for="q" class="sr-only">Suche</label>
+        <input id="q" name="q" type="search" placeholder="Suchen …" autocomplete="off">
+      </form>
+      <a class="lang-switch" href="../en/docs/tool-policies.html" hreflang="en" lang="en" aria-label="English version of this page"><span aria-hidden="true">EN</span><span class="lang-long" aria-hidden="true">English</span></a>
+    </div>
+  </div>
+</header>
+<main id="inhalt" tabindex="-1">
+<header class="page-head"><div class="wrap"><nav class="crumbs" aria-label="Brotkrumen"><ol><li><a href="../index.html">Start</a></li><li><a href="index.html">Dokumentation</a></li><li><span aria-current="page">Tool-Inventar und Tool-Richtlinien</span></li></ol></nav><p class="eyebrow">Konzepte</p><h1>Tool-Inventar und Tool-Richtlinien</h1><p class="lead">ai-gw erfasst jedes Tool, das Anwendungen in Modellanfragen mitschicken, erkennt geänderte oder verdächtige Beschreibungen und setzt Richtlinien durch – vom Entfernen einzelner Tools bis zur Freigabe im Einzelfall.</p><p class="meta">Aufbereitet aus: Konzept 16 „Tool-Inventar und Tool-Richtlinien“</p></div></header><div class="page with-toc"><nav class="toc" aria-label="Inhalt dieser Seite"><p class="toc-title">Auf dieser Seite</p><ol><li><a href="#pipeline">Platz in der Pipeline</a></li><li><a href="#inventar">Inventar</a></li><li><a href="#aenderungen">Geänderte und verdächtige Tools</a></li><li><a href="#richtlinien">Richtlinien</a></li><li><a href="#freigabe">Freigeben und Sperren aus dem Inventar</a></li><li><a href="#messwerte">Messwerte</a></li><li><a href="#grenzen">Grenzen</a></li></ol></nav><div class="content"><article class="doc"><p>Anwendungen schicken mit jeder Modellanfrage die Tools mit, die das Modell aufrufen darf – Coding-Assistenten etwa alle Tools ihrer MCP-Server als <code>mcp__&lt;server&gt;__&lt;tool&gt;</code>. Das Gateway führt diese Tools nicht aus, sieht sie aber vollständig. Genau das nutzt ai-gw:</p>
+<ul><li><strong>Inventar:</strong> jedes Tool mit Name, Art, vermuteter Herkunft, Client, Organisation, Team und Key, erster und letzter Sichtung, Zahl der Anfragen und der Aufrufe durch das Modell.</li><li><strong>Änderungen und Verdacht:</strong> geänderte Beschreibungen oder Schemas bekannter Tools („Rug Pull“) und Beschreibungen mit Prompt-Injection-Signalen werden markiert, auditiert und gemeldet.</li><li><strong>Richtlinien:</strong> erlauben, entfernen, ablehnen, beobachten oder „erst nach Freigabe“ – auch für Tool-Aufrufe in der Antwort.</li></ul>
+<h2 id="pipeline">Platz in der Pipeline<a class="anchor" href="#pipeline" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<pre><span class="code-lang">text</span><code class="lang-text">Anmeldung ─► Body ─► Modellfreigabe ─► [Tool-Richtlinien + Inventar] ─► Limits/Budgets
+          ─► Guardrails ─► Cache ─► Routing
+          ─► [Tool-Aufruf-Filter] ─► Ausgabe-Guardrails ─► Client</code></pre>
+<ul><li><strong>Vor Limits und Guardrails:</strong> entfernte Tools zählen nicht zur Token-Schätzung, Guardrails und Webhooks sehen nur noch erlaubte Tools, eine Ablehnung belegt kein Kontingent.</li><li><strong>Tool-Aufruf-Filter als innerste Antwortschicht:</strong> Ausgabe-Guardrails sehen bereits gefilterte Antworten; auch Cache-Treffer laufen durch den Filter.</li><li>Gilt für Chat Completions, Messages, Responses und den Playground. Ohne Tools in der Anfrage entfällt der Schritt vollständig.</li></ul>
+<h2 id="inventar">Inventar<a class="anchor" href="#inventar" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Merkmal</th><th scope="col">Herkunft</th></tr></thead><tbody><tr><td>Name</td><td>Name der Funktion bzw. des Anbieter-Tools</td></tr><tr><td>Art</td><td>Funktion mit JSON-Schema, versioniertes Server-Tool eines Anbieters oder eingebautes Tool</td></tr><tr><td>Herkunft</td><td>MCP-Server aus dem Namensmuster (<code>mcp__&lt;server&gt;__&lt;tool&gt;</code> oder <code>&lt;server&gt;__&lt;tool&gt;</code>), sonst „client“</td></tr><tr><td>Client</td><td>konfigurierbarer Header (z. B. <code>x-aigw-client</code>), sonst <code>User-Agent</code></td></tr><tr><td>Zuordnung</td><td>Organisation, Team, Key und Name – je Anwendung ein Eintrag</td></tr></tbody></table></div>
+<p>Für Beschreibung und Schema speichert ai-gw je einen Hash; das Schema wird dabei als JSON-Baum gehasht, unabhängig von Leerzeichen und Schlüsselreihenfolge. Die <strong>Inhalte</strong> werden nur gespeichert, wenn die Payload-Richtlinie des Keys es erlaubt – vollständig oder maskiert. Geprüft wird die Beschreibung immer, im Speicher.</p>
+<p>Im heißen Pfad kostet das Inventar wenig: Bekannte Definitionen werden über einen schnellen, je Prozess zufällig geschlüsselten Fingerabdruck erkannt; nur neue oder geänderte Definitionen werden kopiert. Ein Hintergrund-Task schreibt das Inventar gebündelt in die Datenbank – nie im Anfragepfad. Mehrere Instanzen schreiben additiv in dieselben Einträge.</p>
+<h2 id="aenderungen">Geänderte und verdächtige Tools<a class="anchor" href="#aenderungen" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<ul><li><strong>Geändert:</strong> Weicht ein Hash vom gespeicherten Stand ab, wird der Eintrag markiert, der Verlauf fortgeschrieben, ein Audit-Eintrag geschrieben und das Ereignis <code>tool.changed</code> an die Ereignis-Webhooks gesendet. Auf Wunsch sperrt ai-gw das Tool für diesen Key automatisch, bis jemand die Änderung bestätigt.</li><li><strong>Verdächtig:</strong> Die Prompt-Injection-Signale des <code>prompt-filter</code> laufen über jede neue oder geänderte Beschreibung. Treffer werden mit den Signalnamen gespeichert, auditiert und als <code>tool.suspicious</code> gemeldet; gesperrt wird nicht automatisch.</li></ul>
+<h2 id="richtlinien">Richtlinien<a class="anchor" href="#richtlinien" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<pre><span class="code-lang">yaml</span><code class="lang-yaml">apiVersion: aigw/v1alpha1
+kind: ToolPolicy
+metadata: {name: block-destructive}
+spec:
+  scope: {level: global}               # global | organization | team | api-key | model-group
+  tools: ["*delete*", "!delete_draft"] # Glob-Muster, !Ausschluss; leer = alle
+  servers: [github]                    # Herkunft; leer = jede
+  action: block-strip                  # allow | block-strip | block-reject | observe | require-approval
+  locked: true                         # gilt auch gegen spezifischere allow-Regeln
+  description: Zerstörerische Tools nie an Modelle geben</code></pre>
+<p>Ein Muster passt auf den vollen Namen oder auf den Namen ohne Server-Präfix. Entschieden wird je Tool im Kontext der Anfrage:</p>
+<ol><li>Eine passende <strong>gesperrte</strong> Sperre gewinnt immer, gleich auf welcher Ebene.</li><li>Sonst gilt die passende <code>allow</code>- oder <code>block-*</code>-Richtlinie der <strong>spezifischsten Ebene</strong> (Key vor Modellgruppe vor Team vor Organisation vor global); auf gleicher Ebene die strengere.</li><li>Ohne solche Richtlinie greift eine passende <code>require-approval</code>-Richtlinie: Das Tool ist nicht freigegeben, bis eine <code>allow</code>-Richtlinie es erfasst.</li><li>Sonst ist das Tool erlaubt. <code>observe</code> ändert nichts, protokolliert aber und zählt.</li></ol>
+<div class="table-wrap"><table><thead><tr><th scope="col">Wirkung</th><th scope="col">Anfrage</th><th scope="col">Antwort</th></tr></thead><tbody><tr><td>erlauben</td><td>unverändert</td><td>–</td></tr><tr><td>entfernen (<code>block-strip</code>)</td><td>Tool aus der Anfrage entfernt; ein darauf erzwungenes <code>tool_choice</code> wird zu <code>auto</code></td><td>Aufrufe dieses Tools unterbunden</td></tr><tr><td>ablehnen (<code>block-reject</code>)</td><td><code>403</code> mit Code <code>tool_blocked</code> im Format des Eingangs</td><td>–</td></tr></tbody></table></div>
+<p>Ruft ein Modell trotzdem ein nicht erlaubtes Tool auf – halluziniert, aus dem Verlauf oder als eingebautes Anbieter-Tool –, behandelt ai-gw das wie eine Ausgabe-Ablehnung der Guardrails: <code>finish_reason: content_filter</code> bzw. <code>stop_reason: refusal</code> und Header <code>x-aigw-guardrail: tool-policy</code>. Im Stream werden ab diesem Aufruf keine Inhalte mehr weitergegeben; bereits gesendeter Text bleibt, die Usage wird abgerechnet.</p>
+<h2 id="freigabe">Freigeben und Sperren aus dem Inventar<a class="anchor" href="#freigabe" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<p>In Admin-UI und Admin-API zeigt jeder Inventareintrag seinen Status: neu, freigegeben, gesperrt oder wartend. „Freigeben“ und „Sperren“ schreiben normale <code>ToolPolicy</code>-Ressourcen je Ebene – mit Audit, sofortiger Wirkung über den Snapshot und Export per GitOps. Die Rechte folgen denen der Plugin-Bindungen: Team-Admins entscheiden im eigenen Team, globale Ebenen bleiben globalen Admins vorbehalten; eingeschränkte Rollen sehen das Inventar nur in ihrem Bereich.</p>
+<h2 id="messwerte">Messwerte<a class="anchor" href="#messwerte" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<p>Gemessen mit 30 Tools je Anfrage (Beschreibung rund 600 Zeichen, Schema mit acht Feldern), ein Kern:</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Fall</th><th scope="col">µs je Anfrage</th></tr></thead><tbody><tr><td>ohne Tools</td><td>0,02</td></tr><tr><td>30 Tools, ohne Inventar und Richtlinien</td><td>2,6</td></tr><tr><td>30 Tools, 6 Richtlinien</td><td>7,9</td></tr><tr><td>30 Tools, Inventar (bekannte Definitionen)</td><td>13,2</td></tr><tr><td>30 Tools, Inventar und 6 Richtlinien</td><td>18,0</td></tr></tbody></table></div>
+<p>Zum Vergleich: Schon das Dekodieren eines solchen Bodys von rund 40 KB kostet ein Vielfaches.</p>
+<h2 id="grenzen">Grenzen<a class="anchor" href="#grenzen" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<ul><li>Tool-Ergebnisse in der Anfrage und Aufrufe über das <a href="mcp-gateway.html">MCP-Gateway</a> prüft dieser Baustein nicht – dafür sind Guardrails bzw. MCP-Freigaben zuständig.</li><li>Mehrere Clients mit demselben Key teilen sich einen Inventareintrag.</li><li>Automatisches Sperren wirkt ab dem nächsten Snapshot; Anfragen im selben Schreibintervall gehen noch durch.</li></ul></article><nav class="pager" aria-label="Weitere Seiten"><a rel="prev" href="mcp-gateway.html"><span aria-hidden="true">←</span> MCP-Gateway</a><a rel="next" href="wasm-plugins.html">WASM-Plugins <span aria-hidden="true">→</span></a></nav></div></div>
+</main>
+<footer class="site-footer">
+  <div class="bar">
+    <div class="foot-brand"><svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><p><strong>ai-gw</strong> (AI-Gateway) – Quelloffenes, selbst gehostetes AI-Gateway in Rust – ein Endpunkt für viele KI-Anbieter. Ein Binary für Gateway, Admin-API und Admin-UI.</p></div>
+    <p>Dokumentation unter <a href="https://creativecommons.org/licenses/by/4.0/deed.de" rel="license noopener">CC BY 4.0</a>, Code unter AGPL-3.0-or-later. Keine Cookies, kein Tracking, keine externen Ressourcen.</p>
+    <nav aria-label="Rechtliches und Service"><p><a href="../mitmachen.html#lizenz">Lizenz</a> · <a href="../mitmachen.html#sicherheit">Sicherheitslücke melden</a> · <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">Quellcode</a> · <a href="../suche.html">Suche</a> · <a href="../impressum.html">Impressum</a> · <a href="../datenschutz.html">Datenschutz</a></p></nav>
+  </div>
+</footer>
+<script src="../assets/site.js?v=462edbf839" defer></script>
+</body>
+</html>

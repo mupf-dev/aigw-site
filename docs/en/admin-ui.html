@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The admin UI · ai-gw</title>
+<meta name="description" content="Screenshots of the ai-gw admin UI – overview, model groups and routing, keys, log explorer, guardrail profiles, YAML import, audit log and command palette.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-gw">
+<meta property="og:title" content="The admin UI · ai-gw">
+<meta property="og:description" content="Screenshots of the ai-gw admin UI – overview, model groups and routing, keys, log explorer, guardrail profiles, YAML import, audit log and command palette.">
+<meta property="og:image" content="https://mupf-dev.github.io/aigw-site/assets/img/ui/uebersicht-dunkel.webp">
+<meta property="og:locale" content="en_US">
+<meta name="theme-color" content="#0e1115">
+<link rel="canonical" href="../en/admin-ui.html">
+<link rel="alternate" hreflang="de" href="../oberflaeche.html">
+<link rel="alternate" hreflang="en" href="../en/admin-ui.html">
+<link rel="alternate" hreflang="x-default" href="../oberflaeche.html">
+<link rel="stylesheet" href="../assets/style.css?v=dd200eddc7">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body class="k-wide">
+<a class="skip" href="#inhalt">Skip to content</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="../en/index.html" aria-label="ai-gw (AI-Gateway) – Home">
+      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><span class="brand-text"><span class="brand-name">ai-gw</span><span class="brand-sub">AI-Gateway · alpha</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnav">Menu</button>
+    <nav id="hauptnav" class="mainnav" aria-label="Main navigation"><ul><li><a href="../en/index.html">Home</a></li><li><a href="../en/features.html">Features</a></li><li><a href="../en/admin-ui.html" aria-current="page">Admin UI</a></li><li><a href="../en/architecture.html">Architecture</a></li><li><a href="../en/security.html">Security</a></li><li><a href="../en/docs/index.html">Docs</a></li><li><a href="../en/quickstart.html">Quickstart</a></li><li><a href="../en/roadmap.html">Roadmap</a></li><li><a href="../en/contribute.html">Contribute</a></li></ul></nav>
+    <div class="tools">
+      <form class="search" role="search" action="../en/search.html" method="get">
+        <label for="q" class="sr-only">Search</label>
+        <input id="q" name="q" type="search" placeholder="Search …" autocomplete="off">
+      </form>
+      <a class="lang-switch" href="../oberflaeche.html" hreflang="de" lang="de" aria-label="Deutsche Fassung dieser Seite"><span aria-hidden="true">DE</span><span class="lang-long" aria-hidden="true">Deutsch</span></a>
+    </div>
+  </div>
+</header>
+<main id="inhalt" tabindex="-1">
+<header class="page-head"><div class="wrap"><p class="eyebrow">AI-Gateway</p><h1>The admin UI</h1><p class="lead">Screenshots of the ai-gw admin UI – overview, model groups and routing, keys, log explorer, guardrail profiles, YAML import, audit log and command palette.</p></div></header><div class="page"><div class="content"><article class="doc"><p class="shot-intro">The admin UI is a Svelte 5 application embedded in the binary and served by the control plane (default port 4001, path <code>/admin/</code>). It uses only the public admin API – everything shown here also works via the API or as YAML. The screenshots come from the real UI; organizations, teams, keys and figures are fictitious sample or test data.</p>
+<blockquote><p><strong>Pre-release – the UI may change.</strong> The screenshots show the state of development in November 2026. The UI is currently in German.</p></blockquote>
+<h2 id="uebersicht">Overview<a class="anchor" href="#uebersicht" aria-label="Link to this section">#</a></h2>
+<p>Requests, tokens, cost, p95 latency, error rate and cache hits for the selected period, with a time series, top model groups, provider traffic share and health, and the latest errors.</p>
+<figure class="shot">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../assets/img/ui/uebersicht-dunkel.webp" width="1200" height="1307">
+    <img src="../assets/img/ui/uebersicht-hell.webp" width="1200" height="1307" loading="lazy" decoding="async" alt="Overview of the fictitious organization Acme GmbH with 24-hour key figures, a request time series, a table of top model groups with requests, tokens, cost and p95 latency, traffic shares of Azure OpenAI, OpenAI, Anthropic, vLLM, AWS Bedrock, Mistral and Vertex AI, and a list of recent errors.">
+  </picture>
+  <figcaption>Overview – follows the system light/dark setting, just like this site.</figcaption>
+</figure>
+<h2 id="routing">Model groups and routing<a class="anchor" href="#routing" aria-label="Link to this section">#</a></h2>
+<p>A model group is the public model name for clients. Behind it are deployments with priority, weight and capacity; fallback chain, retries and circuit breaker are configurable per group.</p>
+<div class="shot-grid">
+<figure class="shot">
+  <img src="../assets/img/ui/modellgruppe-dunkel.webp" width="1200" height="750" loading="lazy" decoding="async" alt="Detail page of the model group gpt-4o in dark mode: weighted strategy, fallback chain to claude-sonnet on rate limit or unavailability, retry and circuit breaker settings, two deployments – Azure OpenAI with priority 0 and OpenAI with priority 1.">
+  <figcaption>Model group with two deployments: reserved capacity first, fallback to another model.</figcaption>
+</figure>
+<figure class="shot">
+  <img src="../assets/img/ui/routing-hell.webp" width="1200" height="750" loading="lazy" decoding="async" alt="Edit model group dialog with routing strategy, aliases, capabilities chat, embeddings, images, transcription and speech, fallback chain and a form for retries with attempts, backoff and time budget.">
+  <figcaption>Routing settings as a form or JSON – validated by the same parser as the data plane.</figcaption>
+</figure>
+</div>
+<h2 id="keys">Keys<a class="anchor" href="#keys" aria-label="Link to this section">#</a></h2>
+<p>Virtual API keys for applications, with team, allowed models, budget, rate limits, expiry and status. The plaintext is shown only once, on creation.</p>
+<figure class="shot">
+  <img src="../assets/img/ui/keys-hell.webp" width="1200" height="1268" loading="lazy" decoding="async" alt="List of 14 virtual keys of the fictitious Acme GmbH, such as ci-evals, contract-review and support-bot-prod, each with team, allowed models, monthly budget, RPM and TPM limits, expiry date, last use and status active, expired or revoked.">
+  <figcaption>Keys with budgets and limits per application.</figcaption>
+</figure>
+<h2 id="logs">Log explorer<a class="anchor" href="#logs" aria-label="Link to this section">#</a></h2>
+<p>Every request through the gateway – with model, provider, key, tokens, cost, latency, cache hits and fallback attempts. Content is stored only if configured, and then masked.</p>
+<figure class="shot">
+  <img src="../assets/img/ui/logs-hell.webp" width="1200" height="750" loading="lazy" decoding="async" alt="Log explorer in live view: key figures for requests, error rate, p95 latency and cost, with a table of time, status, model and provider, key, tokens, cost, latency and cache status per request.">
+  <figcaption>Log explorer with filters for status, model and cache.</figcaption>
+</figure>
+<h2 id="guardrails">Guardrail profiles<a class="anchor" href="#guardrails" aria-label="Link to this section">#</a></h2>
+<p>Profiles bundle recommended guardrail settings. Before applying one to an organization, team, key or model group, the UI shows which plugin bindings will be created or changed.</p>
+<figure class="shot">
+  <img src="../assets/img/ui/guardrail-profil-hell.webp" width="1200" height="750" loading="lazy" decoding="async" alt="Apply basic profile dialog at team level: the diff shows two new plugin bindings, prompt-filter and pii; in the background the descriptions of the basic, strict and open profiles.">
+  <figcaption>Applying the “basic” profile to a team – diff first, then apply.</figcaption>
+</figure>
+<h2 id="gitops">YAML import and audit<a class="anchor" href="#gitops" aria-label="Link to this section">#</a></h2>
+<p>Configuration can be exported as YAML manifests and applied again – first as a dry run with a diff, then in one transaction. Every change lands in the audit log, whose hash chain can be verified in the UI.</p>
+<div class="shot-grid">
+<figure class="shot">
+  <img src="../assets/img/ui/gitops-hell.webp" width="1200" height="750" loading="lazy" decoding="async" alt="YAML import with manifests for a model group gpt-4o and a team legal; the dry run reports one creation and one change and shows the diff of the aliases and the routing strategy.">
+  <figcaption>Dry run with a diff before applying.</figcaption>
+</figure>
+<figure class="shot">
+  <img src="../assets/img/ui/audit-hell.webp" width="1200" height="750" loading="lazy" decoding="async" alt="Audit log with the message that the audit chain is intact with 50 entries verified, filters for object type, action, actor and period, and entries for creating, suspending, unsuspending and revoking API keys.">
+  <figcaption>Audit log with verified hash chain (test data).</figcaption>
+</figure>
+</div>
+<h2 id="befehlspalette">Command palette<a class="anchor" href="#befehlspalette" aria-label="Link to this section">#</a></h2>
+<p>Ctrl+K jumps to pages, actions, models or keys – without leaving the keyboard.</p>
+<figure class="shot">
+  <img src="../assets/img/ui/befehlspalette-hell.webp" width="1200" height="750" loading="lazy" decoding="async" alt="Open command palette above the overview with a search field for pages, actions, models or keys and a list of pages from overview to logs.">
+  <figcaption>Command palette (Ctrl+K).</figcaption>
+</figure></article></div></div>
+</main>
+<footer class="site-footer">
+  <div class="bar">
+    <div class="foot-brand"><svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><p><strong>ai-gw</strong> (AI-Gateway) – Open-source, self-hosted AI gateway in Rust – one endpoint for many AI providers. One binary for gateway, admin API and admin UI.</p></div>
+    <p>Documentation under <a href="https://creativecommons.org/licenses/by/4.0/deed.en" rel="license noopener">CC BY 4.0</a>, code under AGPL-3.0-or-later. No cookies, no tracking, no third-party resources.</p>
+    <nav aria-label="Legal and service"><p><a href="../en/contribute.html#license">License</a> · <a href="../en/contribute.html#security">Report a vulnerability</a> · <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">Source code</a> · <a href="../en/search.html">Search</a> · <a href="../en/legal-notice.html">Legal notice</a> · <a href="../en/privacy.html">Privacy policy</a></p></nav>
+  </div>
+</footer>
+<script src="../assets/site.js?v=462edbf839" defer></script>
+</body>
+</html>

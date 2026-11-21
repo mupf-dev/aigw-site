@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Betrieb und Härtung · ai-gw</title>
+<meta name="description" content="Empfehlungen für den Betrieb von ai-gw – Netz und Listener, Geheimnisse, Datenhaltung und mehrere Instanzen, Admin-Zugang, Datenebene, Plugins, Monitoring und Audit.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-gw">
+<meta property="og:title" content="Betrieb und Härtung · ai-gw">
+<meta property="og:description" content="Empfehlungen für den Betrieb von ai-gw – Netz und Listener, Geheimnisse, Datenhaltung und mehrere Instanzen, Admin-Zugang, Datenebene, Plugins, Monitoring und Audit.">
+<meta property="og:image" content="https://mupf-dev.github.io/aigw-site/assets/img/ui/uebersicht-dunkel.webp">
+<meta property="og:locale" content="de_DE">
+<meta name="theme-color" content="#0e1115">
+<link rel="canonical" href="../doku/betrieb.html">
+<link rel="alternate" hreflang="de" href="../doku/betrieb.html">
+<link rel="alternate" hreflang="en" href="../en/docs/operations.html">
+<link rel="alternate" hreflang="x-default" href="../doku/betrieb.html">
+<link rel="stylesheet" href="../assets/style.css?v=dd200eddc7">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body class="k-doc">
+<a class="skip" href="#inhalt">Zum Inhalt springen</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="../index.html" aria-label="ai-gw (AI-Gateway) – Startseite">
+      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><span class="brand-text"><span class="brand-name">ai-gw</span><span class="brand-sub">AI-Gateway · alpha</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnav">Menü</button>
+    <nav id="hauptnav" class="mainnav" aria-label="Hauptnavigation"><ul><li><a href="../index.html">Start</a></li><li><a href="../funktionen.html">Funktionen</a></li><li><a href="../oberflaeche.html">Oberfläche</a></li><li><a href="../architektur.html">Architektur</a></li><li><a href="../sicherheit.html">Sicherheit</a></li><li><a href="../doku/index.html" aria-current="page">Doku</a></li><li><a href="../schnellstart.html">Schnellstart</a></li><li><a href="../roadmap.html">Roadmap</a></li><li><a href="../mitmachen.html">Mitmachen</a></li></ul></nav>
+    <div class="tools">
+      <form class="search" role="search" action="../suche.html" method="get">
+        <label for="q" class="sr-only">Suche</label>
+        <input id="q" name="q" type="search" placeholder="Suchen …" autocomplete="off">
+      </form>
+      <a class="lang-switch" href="../en/docs/operations.html" hreflang="en" lang="en" aria-label="English version of this page"><span aria-hidden="true">EN</span><span class="lang-long" aria-hidden="true">English</span></a>
+    </div>
+  </div>
+</header>
+<main id="inhalt" tabindex="-1">
+<header class="page-head"><div class="wrap"><nav class="crumbs" aria-label="Brotkrumen"><ol><li><a href="../index.html">Start</a></li><li><a href="index.html">Dokumentation</a></li><li><span aria-current="page">Betrieb und Härtung</span></li></ol></nav><p class="eyebrow">Betrieb und Messwerte</p><h1>Betrieb und Härtung</h1><p class="lead">Empfehlungen für den Betrieb von ai-gw – Netz und Listener, Geheimnisse, Datenhaltung und mehrere Instanzen, Admin-Zugang, Datenebene, Plugins, Monitoring und Audit.</p><p class="meta">Aufbereitet aus: Betriebshandbuch (Installation, Datenhaltung, Monitoring, Härtung)</p></div></header><div class="page with-toc"><nav class="toc" aria-label="Inhalt dieser Seite"><p class="toc-title">Auf dieser Seite</p><ol><li><a href="#netz">Netz und Listener</a></li><li><a href="#geheimnisse">Geheimnisse</a></li><li><a href="#datenhaltung">Datenhaltung und mehrere Instanzen</a></li><li><a href="#admin">Admin-Zugang</a></li><li><a href="#datenebene">Datenebene</a></li><li><a href="#plugins">Plugins</a></li><li><a href="#monitoring">Monitoring</a></li><li><a href="#audit">Audit</a></li><li><a href="#abhaengigkeiten">Abhängigkeiten</a></li></ol></nav><div class="content"><article class="doc"><p>Das Betriebshandbuch im Repository (<code>docs/betrieb/</code>) beschreibt Installation, Konfiguration, Datenhaltung, Monitoring, Anmeldung per OIDC, Fehlersuche, Härtung und Leistung im Detail. Diese Seite fasst die wichtigsten Empfehlungen zusammen.</p>
+<h2 id="netz">Netz und Listener<a class="anchor" href="#netz" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<ul><li><strong>Daten- und Steuerebene trennen.</strong> Die Datenebene (Port 4000) ist für Anwendungen da; die Steuerebene (Port 4001) mit Admin-API, UI und Metriken gehört ins Verwaltungsnetz oder hinter einen Ingress mit Zugriffsbeschränkung.</li><li><strong>Reverse Proxy vor die Datenebene:</strong> TLS-Terminierung (ai-gw spricht selbst Klartext-HTTP/1.1 und h2c), HSTS, Verbindungs- und Ratenlimits je Client-IP.</li><li><strong>Verbindungsschutz im Gateway:</strong> Höchstzahl gleichzeitiger Verbindungen je Listener (darüber sofort <code>503</code>), Lese-Timeouts für Kopf und Körper der Anfrage gegen Slowloris, Keep-Alive-Leerlauf und HTTP/2-Grenzen. Laufende Antworten – auch minutenlange Streams – brechen diese Timeouts nicht ab. Das Leerlauf-Timeout größer wählen als das eines vorgeschalteten Load Balancers.</li><li><strong>Ausgehend</strong> zusätzlich zur SSRF-Prüfung eine Egress-Firewall: nur Anbieter, IdP, Webhook- und MCP-Ziele erlauben, Metadaten-Endpunkte der Cloud auf Netzebene sperren.</li><li>Ausnahmen für private Upstreams (z. B. ein vLLM im eigenen Netz) so eng wie möglich fassen: einzelne Hosts statt großer Bereiche. Sie gelten nur für Ressourcen, die globale Admins oder GitOps anlegen.</li></ul>
+<h2 id="geheimnisse">Geheimnisse<a class="anchor" href="#geheimnisse" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<ul><li>Master-Key mit <code>aigw keygen</code> erzeugen, als Datei-Secret einbinden und <strong>getrennt von Datenbank-Backups</strong> aufbewahren – wer beides hat, hat alle Zugangsdaten.</li><li>Rotation über eine Liste vorheriger Schlüssel und <code>aigw config rekey</code>; alte Schlüssel nach der Neuverschlüsselung entfernen.</li><li>In GitOps-Manifesten nur Verweise auf Umgebungsvariablen (<code>AIGW_SECRET_*</code>) oder Dateien, nie Klartext.</li><li>Den optionalen Snapshot-Cache nur auf einem Pfad ablegen, den ausschließlich der Gateway-Benutzer schreiben kann; sein Höchstalter begrenzt, wie lange ein Start ohne Datenbank mit altem Stand möglich ist.</li></ul>
+<h2 id="datenhaltung">Datenhaltung und mehrere Instanzen<a class="anchor" href="#datenhaltung" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Aufbau</th><th scope="col">Datenbank</th><th scope="col">Zähler</th><th scope="col">Hinweis</th></tr></thead><tbody><tr><td>Einzelinstanz</td><td>SQLite im Volume</td><td>lokal</td><td>einfachster Betrieb</td></tr><tr><td>Mehrere Instanzen</td><td>Postgres</td><td>Redis (exakt) oder Abgleich über Postgres</td><td>Änderungen per LISTEN/NOTIFY in unter einer Sekunde überall wirksam</td></tr><tr><td>Lastbetrieb</td><td>Postgres</td><td>Redis</td><td>Request-Log-Writer konkurriert sonst mit dem Budget-Abgleich</td></tr></tbody></table></div>
+<p>Datenbank-Migrationen laufen beim Start; Backups der Datenbank enthalten Zugangsdaten nur verschlüsselt. Fällt die Datenbank im Betrieb aus, arbeitet der Gateway mit dem letzten Snapshot weiter; fällt Redis aus, zählt er lokal weiter.</p>
+<h2 id="admin">Admin-Zugang<a class="anchor" href="#admin" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<ul><li><strong>OIDC</strong> bevorzugen (Microsoft Entra ID, Keycloak oder ein anderer IdP) und Rollen an IdP-Gruppen binden; Sitzungen kurz halten.</li><li>Das <strong>Bootstrap-Token</strong> gilt nur bis zum ersten globalen Admin per OIDC oder Admin-API-Key und erlischt dann automatisch.</li><li>Die Rolle <code>gitops</code> schreibt standardmäßig keine Nutzer mit Rollen und keine Admin-Keys.</li><li>Entra-Anmeldung per Workload- oder Managed Identity an Anbieter-Zugangsdaten nur ausdrücklich freigeben; Zertifikatsschlüssel möglichst verschlüsselt ablegen.</li><li>Einladungslinks sind Inhaber-Token und gehören in einen vertraulichen Kanal.</li></ul>
+<h2 id="datenebene">Datenebene<a class="anchor" href="#datenebene" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<ul><li>Keys mit Ablaufdatum, Limits und Budgets je Organisation und Team; widerrufene Keys wirken sofort, auch über Instanzen hinweg.</li><li>Limits für gleichzeitige Anfragen bei mehreren Instanzen mit Redis-Zählern betreiben; beim Abgleich über Postgres gelten sie je Instanz.</li><li>MCP-Sessions je Key und Team passend zur Nutzung begrenzen.</li><li>Guardrails mit externen Diensten auf <code>failMode: closed</code>; ein Prüfmodell mit eigener Kapazitätsgrenze versehen und die Zahl der Prüfungen je Anfrage begrenzen. Azure AI Content Safety bevorzugt mit Entra ID statt API-Key anbinden.</li><li><strong>Payload-Logging</strong> nur, wo nötig. Inhalte lesen nur <code>admin</code> und <code>auditor</code>; bei Compliance-Pflichten an der Organisation eine Obergrenze setzen und sperren.</li></ul>
+<h2 id="plugins">Plugins<a class="anchor" href="#plugins" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<ul><li>Webhook-Plugins mit Secret signieren lassen und auf <code>failMode: closed</code> setzen.</li><li>WASM-Module nur aus vertrauenswürdiger Quelle, mit Signaturpflicht über eigene Ed25519-Schlüssel (privater Schlüssel außerhalb des Gateways) und festgeschriebenem SHA-256 in der Bindung. Wer keine WASM-Plugins braucht, schaltet sie ab. Details: <a href="wasm-plugins.html">WASM-Plugins</a>.</li></ul>
+<h2 id="monitoring">Monitoring<a class="anchor" href="#monitoring" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<ul><li><code>/healthz</code> (Liveness) und <code>/readyz</code> (Readiness, mit Zustand <code>degraded</code> bei veraltetem oder aus dem Cache geladenem Snapshot) auf beiden Listenern.</li><li>Prometheus-Metriken unter <code>/metrics</code> – unter anderem Anfragen, Latenzen, Tokens, Kosten, Upstream-Fehler, Circuit Breaker, Cache, verworfene Log-Ereignisse, Verbindungen und Timeouts der Listener, Plugins, MCP und WASM. Alarme lohnen sich besonders für abgewiesene Verbindungen, verworfene Log-Ereignisse und <code>degraded</code>.</li><li>OpenTelemetry-Traces und -Logs per OTLP/HTTP, Request-Log zusätzlich als JSON-Lines-Datei mit Rotation.</li></ul>
+<h2 id="audit">Audit<a class="anchor" href="#audit" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<ul><li>Jede Admin-Änderung steht im Audit-Log mit Vorher/Nachher; Geheimnisse sind redigiert.</li><li>Die Hash-Kette regelmäßig prüfen (Admin-API, UI oder <code>aigw audit verify</code>) und den Kopf-Hash extern ablegen.</li><li>Schreibrechte auf die Datenbank nur für den Gateway-Benutzer.</li></ul>
+<h2 id="abhaengigkeiten">Abhängigkeiten<a class="anchor" href="#abhaengigkeiten" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<p>Die Prüfkette führt <code>cargo deny</code> (Lizenzen und Sicherheitsmeldungen) aus; für die UI zusätzlich <code>pnpm audit</code>. Bewusst akzeptierte Ausnahmen stehen begründet und mit Prüftermin in der Konfiguration des Repositorys.</p>
+<p>Leistungsdaten und Empfehlungen für Lastbetrieb: <a href="leistung.html">Leistung und Lastvergleich</a>.</p></article><nav class="pager" aria-label="Weitere Seiten"><a rel="prev" href="leistung.html"><span aria-hidden="true">←</span> Leistung und Lastvergleich</a></nav></div></div>
+</main>
+<footer class="site-footer">
+  <div class="bar">
+    <div class="foot-brand"><svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><p><strong>ai-gw</strong> (AI-Gateway) – Quelloffenes, selbst gehostetes AI-Gateway in Rust – ein Endpunkt für viele KI-Anbieter. Ein Binary für Gateway, Admin-API und Admin-UI.</p></div>
+    <p>Dokumentation unter <a href="https://creativecommons.org/licenses/by/4.0/deed.de" rel="license noopener">CC BY 4.0</a>, Code unter AGPL-3.0-or-later. Keine Cookies, kein Tracking, keine externen Ressourcen.</p>
+    <nav aria-label="Rechtliches und Service"><p><a href="../mitmachen.html#lizenz">Lizenz</a> · <a href="../mitmachen.html#sicherheit">Sicherheitslücke melden</a> · <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">Quellcode</a> · <a href="../suche.html">Suche</a> · <a href="../impressum.html">Impressum</a> · <a href="../datenschutz.html">Datenschutz</a></p></nav>
+  </div>
+</footer>
+<script src="../assets/site.js?v=462edbf839" defer></script>
+</body>
+</html>

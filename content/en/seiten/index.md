@@ -1,0 +1,175 @@
+title: Home
+summary: ai-gw – open-source, self-hosted AI gateway in Rust. One OpenAI- and Anthropic-compatible endpoint in front of many AI providers, with routing, multi-tenancy, budgets, guardrails, MCP gateway and admin UI in a single binary.
+hero: ja
+de: index
+---
+::: html
+<section class="hero" aria-labelledby="hero-titel">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">Open source · Rust · AGPL-3.0 · Pre-release</p>
+      <h1 id="hero-titel">One endpoint.<br><span class="hl">Every model.</span></h1>
+      <p class="lead"><strong>ai-gw</strong> is a self-hosted AI gateway: applications and agents speak an OpenAI- or Anthropic-compatible API, and ai-gw routes the requests to OpenAI, Azure OpenAI, Anthropic, AWS Bedrock, Gemini, Mistral, Ollama, vLLM and more – with keys per team, limits, budgets, guardrails and a complete request log. Gateway, admin API and admin UI ship as one binary.</p>
+      <div class="buttons">
+        <a class="btn primary" href="quickstart.html">Quickstart</a>
+        <a class="btn" href="features.html">What ai-gw does</a>
+        <a class="btn" href="https://github.com/mupf-dev/ai-gw" rel="noopener">Source code</a>
+      </div>
+      <ol class="flow" aria-label="Path of a request in brief">
+        <li><b>Request</b></li><li>check key</li><li>limits</li><li>guardrails</li><li>routing</li><li><b>provider</b></li>
+      </ol>
+    </div>
+    <div class="hero-art">
+      <svg class="art" viewBox="0 0 520 400" role="img" aria-labelledby="art-t art-d">
+        <title id="art-t">Applications talk to many AI providers through ai-gw</title>
+        <desc id="art-d">On the left a chat application, an AI agent and an MCP client. They connect to the ai-gw gateway in the middle, which runs authentication, limits and budgets, guardrails, cache, routing and logging in turn. On the right the gateway connects to OpenAI, Anthropic, Azure OpenAI, AWS Bedrock, Vertex AI and local models via Ollama or vLLM.</desc>
+        <circle class="ring" cx="255" cy="200" r="118" style="transform-origin: 255px 200px"/>
+        <!-- Clients -->
+        <rect class="dev" x="8" y="80" width="124" height="52" rx="6"/><text class="t-strong" x="20" y="102">Chat app</text><text x="20" y="120">OpenAI SDK</text>
+        <rect class="dev" x="8" y="174" width="124" height="52" rx="6"/><text class="t-strong" x="20" y="196">AI agent</text><text x="20" y="214">key or agent ID</text>
+        <rect class="dev" x="8" y="268" width="124" height="52" rx="6"/><text class="t-strong" x="20" y="290">MCP client</text><text x="20" y="308">IDE · /mcp</text>
+        <path class="wire" d="M132 106 C156 106 156 150 180 150"/><path class="wire" d="M132 200 H180"/><path class="wire" d="M132 294 C156 294 156 250 180 250"/>
+        <path class="pulse" d="M132 106 C156 106 156 150 180 150"/><path class="pulse p2" d="M132 200 H180"/><path class="pulse p3" d="M132 294 C156 294 156 250 180 250"/>
+        <!-- Gateway -->
+        <g class="float">
+          <rect class="cloud" x="180" y="62" width="150" height="276" rx="10"/>
+          <text class="t-strong" x="255" y="86" text-anchor="middle">ai-gw</text>
+          <rect class="dev-2" x="192" y="98" width="126" height="30" rx="4"/><text x="255" y="117" text-anchor="middle">Auth · Key · JWT</text>
+          <rect class="dev-2" x="192" y="136" width="126" height="30" rx="4"/><text x="255" y="155" text-anchor="middle">Limits · Budgets</text>
+          <rect class="dev-2" x="192" y="174" width="126" height="30" rx="4"/><text x="255" y="193" text-anchor="middle">Guardrails</text>
+          <rect class="dev-2" x="192" y="212" width="126" height="30" rx="4"/><text x="255" y="231" text-anchor="middle">Cache</text>
+          <rect class="dev-2" x="192" y="250" width="126" height="30" rx="4"/><text x="255" y="269" text-anchor="middle">Routing · Fallback</text>
+          <rect class="dev-2" x="192" y="288" width="126" height="30" rx="4"/><text x="255" y="307" text-anchor="middle">Log · metrics</text>
+        </g>
+        <!-- Anbieter -->
+        <path class="wire" d="M330 200 C356 200 354 74 380 74"/><path class="wire" d="M330 200 C356 200 354 124 380 124"/><path class="wire" d="M330 200 C356 200 354 174 380 174"/>
+        <path class="wire" d="M330 200 C356 200 354 224 380 224"/><path class="wire" d="M330 200 C356 200 354 274 380 274"/><path class="wire" d="M330 200 C356 200 354 324 380 324"/>
+        <path class="pulse" d="M330 200 C356 200 354 74 380 74"/><path class="pulse p2" d="M330 200 C356 200 354 174 380 174"/><path class="pulse p3" d="M330 200 C356 200 354 274 380 274"/><path class="pulse p4" d="M330 200 C356 200 354 324 380 324"/>
+        <rect class="dev" x="380" y="56" width="132" height="36" rx="5"/><text class="t-strong" x="392" y="79">OpenAI</text><circle class="led" cx="500" cy="74" r="3.5"/>
+        <rect class="dev" x="380" y="106" width="132" height="36" rx="5"/><text class="t-strong" x="392" y="129">Anthropic</text><circle class="led l2" cx="500" cy="124" r="3.5"/>
+        <rect class="dev" x="380" y="156" width="132" height="36" rx="5"/><text class="t-strong" x="392" y="179">Azure OpenAI</text><circle class="led l3" cx="500" cy="174" r="3.5"/>
+        <rect class="dev" x="380" y="206" width="132" height="36" rx="5"/><text class="t-strong" x="392" y="229">AWS Bedrock</text><circle class="led l4" cx="500" cy="224" r="3.5"/>
+        <rect class="dev" x="380" y="256" width="132" height="36" rx="5"/><text class="t-strong" x="392" y="279">Vertex · Gemini</text><circle class="led" cx="500" cy="274" r="3.5"/>
+        <rect class="dev" x="380" y="306" width="132" height="36" rx="5"/><text class="t-strong" x="392" y="329">Ollama · vLLM</text><circle class="led l2" cx="500" cy="324" r="3.5"/>
+        <text x="446" y="366" text-anchor="middle">and more</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<div class="wrap stats-band">
+  <ul class="stats" aria-label="Key figures">
+    <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></span><div><b>≈ 0.3 ms</b><span>overhead per request (median, measured in a container)</span></div></li>
+    <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V14M9.3 20V10M14.6 20V7M20 20V3"/></svg></span><div><b>&gt; 16,000 req/s</b><span>JSON requests on two CPU cores, error-free up to 500 connections</span></div></li>
+    <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="1"/><path d="M8 6V3M12 6V3M16 6V3M8 21v-3M12 21v-3M16 21v-3"/></svg></span><div><b>≈ 35 MiB</b><span>memory when idle, starts in under a second</span></div></li>
+    <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></span><div><b>1 binary</b><span>gateway, admin API and admin UI; SQLite or Postgres</span></div></li>
+  </ul>
+</div>
+
+<section class="section" aria-labelledby="funktionen-kurz">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Features</p>
+      <h2 id="funktionen-kurz">Everything that belongs between application and model.</h2>
+      <p>Using AI models across several teams calls for key management, cost control, resilience, protection against data leakage and traceability. ai-gw brings this together in one place – in your own network and under your own control.</p>
+    </div>
+    <ul class="features">
+      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/></svg></span><h3>One format, many providers</h3><p>OpenAI- and Anthropic-compatible endpoints for chat, responses, embeddings, images and audio. Translation through a shared intermediate representation – including tools, vision and streaming.</p></li>
+      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="12" r="2"/><path d="M8 6h3a3 3 0 0 1 3 3v0a3 3 0 0 0 2 2.8M8 18h3a3 3 0 0 0 3-3v0a3 3 0 0 1 2-2.8"/></svg></span><h3>Routing and resilience</h3><p>Model groups with aliases, weighted distribution, least latency or least busy, priorities (e.g. reserved capacity first), retries, fallback chains and circuit breakers.</p></li>
+      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4a3 3 0 0 1 0 6M18 14c2 .7 3 2.8 3 6"/></svg></span><h3>Tenants, limits, budgets</h3><p>Organizations, teams and virtual API keys with model access, request and token limits, budgets with alert thresholds and costs per model, team and key.</p></li>
+      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><h3>Guardrails</h3><p>PII detection and masking, prompt-injection heuristics, word and regex rules, canary tokens against system-prompt leaks, link protection, language filters and external content safety.</p></li>
+      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="8.5" y="14" width="7" height="7" rx="1"/><path d="M6.5 10v2h11v-2M12 12v2"/></svg></span><h3>MCP gateway and tool policies</h3><p>MCP servers behind one endpoint, grants per team and key down to individual tools, an inventory of all tools that applications send along, and policies against risky tools.</p></li>
+      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4M12 15v2"/></svg></span><h3>Agent identities</h3><p>AI agents sign in with signed access tokens, for example from Microsoft Entra Agent ID – no gateway key to distribute. The same rules apply as for the mapped key.</p></li>
+      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg></span><h3>Response cache</h3><p>Exact cache in memory or Redis, semantic cache with a built-in HNSW index, pgvector or Redis Search – always partitioned per team.</p></li>
+      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span><h3>Observability and GitOps</h3><p>Request log with costs, Prometheus metrics, OpenTelemetry traces, an audit log with hash chain and declarative YAML configuration with diff and dry run.</p></li>
+    </ul>
+    <p class="note">In detail: <a href="features.html">Features</a> · <a href="security.html">Guardrails &amp; security</a> · <a href="docs/index.html">Documentation</a>.</p>
+  </div>
+</section>
+
+<section class="section alt" aria-labelledby="oberflaeche-kurz">
+  <div class="wrap split">
+    <div>
+      <p class="eyebrow">Admin-UI</p>
+      <h2 id="oberflaeche-kurz" class="h2-plain">Traffic, cost and health at a glance.</h2>
+      <p class="muted-lead">The admin UI is embedded in the binary. It shows requests, tokens, cost, latency, errors and cache hits per team and model, manages models, keys, guardrails and MCP servers, and follows your system's light/dark setting.</p>
+      <ul class="checks">
+        <li><strong>Log explorer</strong> with fallback attempts, cache hits and cost per request</li>
+        <li><strong>Playground</strong> on behalf of a key – with its limits and guardrails</li>
+        <li><strong>Guardrail profiles</strong> (basic, strict, open) with a diff before applying</li>
+        <li><strong>YAML import/export</strong> with dry run, OIDC sign-in, roles</li>
+      </ul>
+      <p class="note">More screenshots: <a href="admin-ui.html">The admin UI</a>.</p>
+    </div>
+    <figure class="shot">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="../assets/img/ui/uebersicht-dunkel.webp" width="1200" height="1307">
+        <img src="../assets/img/ui/uebersicht-hell.webp" width="1200" height="1307" loading="lazy" decoding="async" alt="Admin UI overview for the fictitious organization Acme GmbH: 2.6 million requests, 2.5 billion tokens, cost, p95 latency, 0.8 percent error rate and 26.8 percent cache hit rate in 24 hours, with a time series, top model groups and provider traffic shares below. The UI is in German.">
+      </picture>
+      <figcaption>Overview – real UI (German), fictitious sample data.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="ablauf">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">How a request flows</p>
+      <h2 id="ablauf">Everything from memory – no database on the hot path.</h2>
+      <p>Keys, grants, limits and plugin chains live in RAM as an immutable configuration snapshot. Changes take effect on all instances in under a second; if the database fails, the gateway keeps running with the last known state.</p>
+    </div>
+    <ol class="steps">
+      <li><h3>Authenticate</h3><p>API key (stored only as a hash) or an agent's signed token. Result: organization, team, grants and limits.</p></li>
+      <li><h3>Check</h3><p>Model access and tool policies are applied, limits and budgets reserved; guardrails inspect and mask the prompt.</p></li>
+      <li><h3>Forward</h3><p>Cache hits answer immediately. Otherwise routing picks a deployment, translates to the provider format and streams back chunk by chunk.</p></li>
+      <li><h3>Account</h3><p>Usage settles the reservation, costs are recorded, and the log event goes to the batch writer without blocking.</p></li>
+    </ol>
+    <p class="note">Details: <a href="architecture.html">Architecture</a> · Measurements: <a href="docs/performance.html">Performance and load comparison</a>.</p>
+  </div>
+</section>
+
+<section class="section alt" aria-labelledby="anbieter">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Providers</p>
+      <h2 id="anbieter">Your credentials, your contracts.</h2>
+      <p>ai-gw calls providers with the operator's stored credentials. Secrets are encrypted (AES-256-GCM) in the database or read from the environment and files.</p>
+    </div>
+    <div class="svc">
+      <div class="table-wrap"><table>
+        <caption class="sr-only">Supported providers and authentication methods</caption>
+        <thead><tr><th scope="col">Provider</th><th scope="col">Authentication</th></tr></thead>
+        <tbody>
+          <tr><td>OpenAI</td><td>API key</td></tr>
+          <tr><td>Azure OpenAI, Claude in Azure AI Foundry</td><td>API key or Microsoft Entra ID (client secret, certificate, workload identity, managed identity)</td></tr>
+          <tr><td>Anthropic</td><td>API key</td></tr>
+          <tr><td>AWS Bedrock</td><td>SigV4 or API key</td></tr>
+          <tr><td>Google Gemini API, Vertex AI</td><td>API key or service account</td></tr>
+          <tr><td>Mistral</td><td>API key</td></tr>
+          <tr><td>Ollama, vLLM, OpenAI-compatible endpoints</td><td>optional API key; private addresses only when explicitly allowed</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<section class="section cta" aria-labelledby="start-cta">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Try it</p>
+      <h2 id="start-cta">Your first request in five minutes.</h2>
+      <p>Build the image, generate a master key, start the container – the admin UI walks you through organization, credentials, model group and API key. Or apply everything as YAML.</p>
+      <div class="buttons">
+        <a class="btn primary" href="quickstart.html">Quickstart</a>
+        <a class="btn" href="https://github.com/mupf-dev/ai-gw" rel="noopener">Repository on GitHub</a>
+        <a class="btn" href="contribute.html">Contribute</a>
+      </div>
+    </div>
+    <div class="status">
+      <p><span class="tag">Status · November 2026</span></p>
+      <p>The feature set of the first version (0.1) is implemented and tested; the first release with ready-made container images is still to come. Until 1.0, configuration and admin API may change incompatibly.</p>
+      <p><a href="roadmap.html">Status &amp; roadmap</a></p>
+    </div>
+  </div>
+</section>
+:::

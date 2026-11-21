@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture · ai-gw</title>
+<meta name="description" content="How ai-gw is built – one binary with data and control plane, an in-memory configuration snapshot, a hot path without database access and streaming with backpressure.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-gw">
+<meta property="og:title" content="Architecture · ai-gw">
+<meta property="og:description" content="How ai-gw is built – one binary with data and control plane, an in-memory configuration snapshot, a hot path without database access and streaming with backpressure.">
+<meta property="og:image" content="https://mupf-dev.github.io/aigw-site/assets/img/ui/uebersicht-dunkel.webp">
+<meta property="og:locale" content="en_US">
+<meta name="theme-color" content="#0e1115">
+<link rel="canonical" href="../en/architecture.html">
+<link rel="alternate" hreflang="de" href="../architektur.html">
+<link rel="alternate" hreflang="en" href="../en/architecture.html">
+<link rel="alternate" hreflang="x-default" href="../architektur.html">
+<link rel="stylesheet" href="../assets/style.css?v=dd200eddc7">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body class="k-page">
+<a class="skip" href="#inhalt">Skip to content</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="../en/index.html" aria-label="ai-gw (AI-Gateway) – Home">
+      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><span class="brand-text"><span class="brand-name">ai-gw</span><span class="brand-sub">AI-Gateway · alpha</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnav">Menu</button>
+    <nav id="hauptnav" class="mainnav" aria-label="Main navigation"><ul><li><a href="../en/index.html">Home</a></li><li><a href="../en/features.html">Features</a></li><li><a href="../en/admin-ui.html">Admin UI</a></li><li><a href="../en/architecture.html" aria-current="page">Architecture</a></li><li><a href="../en/security.html">Security</a></li><li><a href="../en/docs/index.html">Docs</a></li><li><a href="../en/quickstart.html">Quickstart</a></li><li><a href="../en/roadmap.html">Roadmap</a></li><li><a href="../en/contribute.html">Contribute</a></li></ul></nav>
+    <div class="tools">
+      <form class="search" role="search" action="../en/search.html" method="get">
+        <label for="q" class="sr-only">Search</label>
+        <input id="q" name="q" type="search" placeholder="Search …" autocomplete="off">
+      </form>
+      <a class="lang-switch" href="../architektur.html" hreflang="de" lang="de" aria-label="Deutsche Fassung dieser Seite"><span aria-hidden="true">DE</span><span class="lang-long" aria-hidden="true">Deutsch</span></a>
+    </div>
+  </div>
+</header>
+<main id="inhalt" tabindex="-1">
+<header class="page-head"><div class="wrap"><p class="eyebrow">AI-Gateway</p><h1>Architecture</h1><p class="lead">How ai-gw is built – one binary with data and control plane, an in-memory configuration snapshot, a hot path without database access and streaming with backpressure.</p></div></header><div class="page with-toc"><nav class="toc" aria-label="Contents of this page"><p class="toc-title">On this page</p><ol><li><a href="#ziele">Goals</a></li><li><a href="#ebenen">One binary, two planes</a></li><li><a href="#hot-path">Path of a request</a></li><li><a href="#snapshot">Configuration snapshot</a></li><li><a href="#formate">Formats and provider adapters</a></li><li><a href="#streaming">Streaming</a></li><li><a href="#zaehler">Limits, counters and budgets</a></li><li><a href="#datenhaltung">Storage and high availability</a></li><li><a href="#technik">Technology</a></li></ol></nav><div class="content"><article class="doc"><h2 id="ziele">Goals<a class="anchor" href="#ziele" aria-label="Link to this section">#</a></h2>
+<p>ai-gw aims to cost as little as possible on the hot path and to stay simple to operate. The quality goals of the first version:</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Goal</th><th scope="col">Target</th></tr></thead><tbody><tr><td>Additional latency from the gateway (without plugins and cache)</td><td>p50 &lt; 200 µs, p99 &lt; 1 ms</td></tr><tr><td>Overhead on time to first token</td><td>&lt; 1 ms – chunks are passed on immediately</td></tr><tr><td>Concurrent streams</td><td>≥ 10,000 per instance with 2 vCPU and 1 GB RAM</td></tr><tr><td>Cold start until ready</td><td>&lt; 500 ms (SQLite)</td></tr><tr><td>Configuration changes take effect</td><td>&lt; 1 s on all instances</td></tr><tr><td>Database access on the hot path</td><td>none – authentication, routing, limits and policies come from RAM</td></tr><tr><td>Database or Redis outage</td><td>proxy keeps running with the last snapshot; counters fall back to local</td></tr></tbody></table></div>
+<p>How far the goals are met is described in <a href="docs/performance.html">Performance and load comparison</a>.</p>
+<h2 id="ebenen">One binary, two planes<a class="anchor" href="#ebenen" aria-label="Link to this section">#</a></h2>
+<p>The <code>aigw</code> binary opens two listeners, which can be merged onto one port:</p>
+<ul><li><strong>Data plane</strong> (default <code>:4000</code>): OpenAI-compatible API, Anthropic Messages API and MCP gateway.</li><li><strong>Control plane</strong> (default <code>:4001</code>): admin API at <code>/admin/api/v1</code>, admin UI at <code>/admin/</code>, <code>/metrics</code>, <code>/healthz</code> and <code>/readyz</code>.</li></ul>
+<p>The split allows the control plane to be exposed only on the management network. The runtime is tokio with hyper (HTTP/1.1 and HTTP/2) and rustls; towards the providers ai-gw keeps a connection pool per endpoint with keep-alive and HTTP/2.</p>
+<figure class="diagram">
+<svg class="g" viewBox="0 0 760 250" role="img" aria-labelledby="pipe-t pipe-d">
+  <title id="pipe-t">Path of a request through ai-gw</title>
+  <desc id="pipe-d">A request passes intake, authentication, context with model access, limit reservation, request plugins and cache. A cache hit answers immediately. Otherwise routing selects a deployment, the adapter translates into the provider format and sends it to the provider; errors before the first byte trigger retry or fallback. The response flows chunk by chunk through adapter and stream plugins to the client; afterwards usage and cost are accounted and a log event is written.</desc>
+  <defs><marker id="pp-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="ah-acc" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <rect class="box" x="6" y="20" width="96" height="44" rx="5"/><text class="b" x="54" y="40" text-anchor="middle">Intake</text><text class="s" x="54" y="55" text-anchor="middle">headers, size</text>
+  <rect class="box" x="114" y="20" width="96" height="44" rx="5"/><text class="b" x="162" y="40" text-anchor="middle">Auth</text><text class="s" x="162" y="55" text-anchor="middle">key hash · JWT</text>
+  <rect class="box" x="222" y="20" width="96" height="44" rx="5"/><text class="b" x="270" y="40" text-anchor="middle">Context</text><text class="s" x="270" y="55" text-anchor="middle">access · tools</text>
+  <rect class="box" x="330" y="20" width="96" height="44" rx="5"/><text class="b" x="378" y="40" text-anchor="middle">Limits</text><text class="s" x="378" y="55" text-anchor="middle">reserve</text>
+  <rect class="soft" x="438" y="20" width="96" height="44" rx="5"/><text class="b" x="486" y="40" text-anchor="middle">Plugins</text><text class="s" x="486" y="55" text-anchor="middle">Guardrails</text>
+  <rect class="box" x="546" y="20" width="96" height="44" rx="5"/><text class="b" x="594" y="40" text-anchor="middle">Cache</text><text class="s" x="594" y="55" text-anchor="middle">exact · semantic</text>
+  <path class="acc-ln" d="M102 42 H112M210 42 H220M318 42 H328M426 42 H436M534 42 H544" marker-end="url(#pp-ah)"/>
+  <path class="acc-ln" d="M642 42 H700 V70" marker-end="url(#pp-ah)"/><text class="s" x="704" y="36">hit</text>
+  <path class="acc-ln" d="M594 64 V100" marker-end="url(#pp-ah)"/>
+  <rect class="box" x="546" y="104" width="96" height="44" rx="5"/><text class="b" x="594" y="124" text-anchor="middle">Routing</text><text class="s" x="594" y="139" text-anchor="middle">pick deployment</text>
+  <rect class="box" x="438" y="104" width="96" height="44" rx="5"/><text class="b" x="486" y="124" text-anchor="middle">Adapter</text><text class="s" x="486" y="139" text-anchor="middle">provider format</text>
+  <rect class="solid" x="330" y="104" width="96" height="44" rx="5"/><text class="on" x="378" y="131" text-anchor="middle">Provider</text>
+  <path class="acc-ln" d="M546 126 H536M438 126 H428" marker-end="url(#pp-ah)"/>
+  <path class="ln" d="M378 104 C378 86 594 86 594 100"/><text class="s" x="460" y="92" text-anchor="middle">retry · fallback before 1st byte</text>
+  <path class="acc-ln" d="M378 148 V180" marker-end="url(#pp-ah)"/>
+  <rect class="box" x="330" y="184" width="96" height="44" rx="5"/><text class="b" x="378" y="204" text-anchor="middle">Stream</text><text class="s" x="378" y="219" text-anchor="middle">chunk by chunk</text>
+  <rect class="soft" x="438" y="184" width="96" height="44" rx="5"/><text class="b" x="486" y="204" text-anchor="middle">Stream-Plugins</text><text class="s" x="486" y="219" text-anchor="middle">check output</text>
+  <rect class="box" x="652" y="74" width="100" height="154" rx="5"/><text class="b" x="702" y="146" text-anchor="middle">Client</text><text class="s" x="702" y="162" text-anchor="middle">input format</text>
+  <path class="acc-ln" d="M426 206 H436M534 206 H648" marker-end="url(#pp-ah)"/>
+  <rect class="box" x="114" y="184" width="200" height="44" rx="5"/><text class="b" x="214" y="204" text-anchor="middle">Accounting · log</text><text class="s" x="214" y="219" text-anchor="middle">usage, cost, ring buffer</text>
+  <path class="ln" d="M330 206 H318" marker-end="url(#pp-ah)"/>
+</svg>
+<figcaption>Path of a request. All decisions come from the in-memory configuration snapshot.</figcaption>
+</figure>
+<h2 id="hot-path">Path of a request<a class="anchor" href="#hot-path" aria-label="Link to this section">#</a></h2>
+<ol><li><strong>Intake:</strong> read headers and parse the body only as far as needed. The body is read only after successful authentication; size and headers are limited.</li><li><strong>Authentication:</strong> API key from <code>Authorization</code>, <code>api-key</code> or <code>x-api-key</code>, hashed with SHA-256 and looked up in the snapshot – or a signed token verified against the configured issuer.</li><li><strong>Context:</strong> resolve the model alias, check access, apply tool policies. The effective policy (organization → team → key → model group) is precomputed when the snapshot is built.</li><li><strong>Limits:</strong> counters are reserved; when exceeded, <code>429</code> is returned immediately.</li><li><strong>Request plugins:</strong> guardrails, PII masking, headers and transformations.</li><li><strong>Cache:</strong> exact first, then semantic, if enabled.</li><li><strong>Routing:</strong> pick a deployment from the model group; retries and fallbacks only while no byte has been sent to the client.</li><li><strong>Translation and streaming:</strong> provider format there and back, chunk by chunk.</li><li><strong>Accounting:</strong> usage settles the reservation, records costs and checks budgets.</li><li><strong>Log:</strong> an event goes into a bounded channel without blocking; the proxy never waits for logs. If the channel is full, the event is dropped and counted.</li></ol>
+<h2 id="snapshot">Configuration snapshot<a class="anchor" href="#snapshot" aria-label="Link to this section">#</a></h2>
+<p>Every admin change runs as a database transaction, increments a monotonic configuration version and writes the audit log. Every instance holds an <strong>immutable snapshot</strong> with precomputed indexes (key hash → context, alias → model group, assembled plugin chains). Running requests keep their snapshot; new ones see the new one immediately.</p>
+<ul><li>With SQLite the snapshot is rebuilt after the commit, with Postgres on all instances via <code>LISTEN/NOTIFY</code>; a periodic version check catches lost notifications.</li><li>Rebuilds are <strong>incremental</strong>: the audit log serves as the change journal and only affected objects are reloaded. A periodic consistency check compares against a full rebuild.</li><li>Optionally ai-gw writes the snapshot to disk <strong>encrypted</strong> (AES-256-GCM with the master key). If the database is unreachable at startup, the gateway starts from this state and reports <code>degraded</code> on <code>/readyz</code>.</li></ul>
+<h2 id="formate">Formats and provider adapters<a class="anchor" href="#formate" aria-label="Link to this section">#</a></h2>
+<p>Incoming requests are translated into a canonical intermediate representation; each provider adapter translates from there into its format and back. This makes every combination of input format and provider possible, and plugins, cache and accounting work on a single model. Unknown fields are preserved where the target format knows them.</p>
+<h2 id="streaming">Streaming<a class="anchor" href="#streaming" aria-label="Link to this section">#</a></h2>
+<ul><li>Bytes from the provider pass through an incremental SSE decoder, become events of the intermediate representation and are re-encoded in the client's format.</li><li><strong>Backpressure:</strong> data is read only when the client consumes it; there is no unbounded buffer.</li><li>A <strong>client abort</strong> cancels the provider request immediately; if usage is missing, it is estimated and marked as estimated.</li><li>Stream plugins work on a sliding window; if the whole response must be checked, the route switches to “buffered”.</li></ul>
+<h2 id="zaehler">Limits, counters and budgets<a class="anchor" href="#zaehler" aria-label="Link to this section">#</a></h2>
+<p>Counters are pluggable: <strong>local</strong> (per instance), <strong>postgres-sync</strong> (synchronized every one to two seconds, slightly fuzzy) and <strong>redis</strong> (exact, distributed). If Redis fails, the gateway keeps counting locally. Budgets can be strict (reserved before the request) or soft (settled afterwards).</p>
+<h2 id="datenhaltung">Storage and high availability<a class="anchor" href="#datenhaltung" aria-label="Link to this section">#</a></h2>
+<p>SQLite is the default for a single instance. For multiple instances behind a load balancer, Postgres serves as the shared database; counters then use <code>postgres-sync</code> or Redis, and the semantic cache optionally pgvector or Redis Search. Provider credentials are stored encrypted with AES-256-GCM in the database; the master key never is. The request log is buffered and written in batches and can also be exported via OpenTelemetry or as JSON Lines.</p>
+<h2 id="technik">Technology<a class="anchor" href="#technik" aria-label="Link to this section">#</a></h2>
+<ul><li><strong>Gateway:</strong> Rust (tokio, hyper/axum, tower, rustls with aws-lc-rs), split into crates for core and intermediate representation, proxy, providers, outbound connections with SSRF protection, token verification, persistence, counters, costs, plugins and PII detection, WASM plugins, cache, MCP, observability, tokenizer, webhooks and admin API.</li><li><strong>Admin UI:</strong> Svelte 5, Vite, TypeScript, Bits UI and Tailwind; the TypeScript types are generated from the admin API's OpenAPI specification.</li><li><strong>Configuration:</strong> YAML for startup configuration and GitOps resources, every startup value also as an <code>AIGW_…</code> environment variable.</li><li><strong>Quality:</strong> formatting, lints without warnings, tests, <code>cargo deny</code>, OpenAPI comparison, UI checks and REUSE compliance in one check pipeline; a license overview of all dependencies in the repository.</li></ul>
+<p>Further reading: <a href="docs/mcp-gateway.html">MCP gateway</a> · <a href="docs/wasm-plugins.html">WASM plugins</a> · <a href="docs/workload-identities.html">Workload and agent identities</a> · <a href="docs/operations.html">Operations and hardening</a>.</p></article></div></div>
+</main>
+<footer class="site-footer">
+  <div class="bar">
+    <div class="foot-brand"><svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><p><strong>ai-gw</strong> (AI-Gateway) – Open-source, self-hosted AI gateway in Rust – one endpoint for many AI providers. One binary for gateway, admin API and admin UI.</p></div>
+    <p>Documentation under <a href="https://creativecommons.org/licenses/by/4.0/deed.en" rel="license noopener">CC BY 4.0</a>, code under AGPL-3.0-or-later. No cookies, no tracking, no third-party resources.</p>
+    <nav aria-label="Legal and service"><p><a href="../en/contribute.html#license">License</a> · <a href="../en/contribute.html#security">Report a vulnerability</a> · <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">Source code</a> · <a href="../en/search.html">Search</a> · <a href="../en/legal-notice.html">Legal notice</a> · <a href="../en/privacy.html">Privacy policy</a></p></nav>
+  </div>
+</footer>
+<script src="../assets/site.js?v=462edbf839" defer></script>
+</body>
+</html>

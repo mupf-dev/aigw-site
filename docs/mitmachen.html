@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mitmachen und Lizenz · ai-gw</title>
+<meta name="description" content="Wie man zu ai-gw beitragen kann, unter welchen Lizenzen Code und Dokumentation stehen und wie Sicherheitslücken gemeldet werden.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-gw">
+<meta property="og:title" content="Mitmachen und Lizenz · ai-gw">
+<meta property="og:description" content="Wie man zu ai-gw beitragen kann, unter welchen Lizenzen Code und Dokumentation stehen und wie Sicherheitslücken gemeldet werden.">
+<meta property="og:image" content="https://mupf-dev.github.io/aigw-site/assets/img/ui/uebersicht-dunkel.webp">
+<meta property="og:locale" content="de_DE">
+<meta name="theme-color" content="#0e1115">
+<link rel="canonical" href="mitmachen.html">
+<link rel="alternate" hreflang="de" href="mitmachen.html">
+<link rel="alternate" hreflang="en" href="en/contribute.html">
+<link rel="alternate" hreflang="x-default" href="mitmachen.html">
+<link rel="stylesheet" href="assets/style.css?v=dd200eddc7">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+</head>
+<body class="k-page">
+<a class="skip" href="#inhalt">Zum Inhalt springen</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="index.html" aria-label="ai-gw (AI-Gateway) – Startseite">
+      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><span class="brand-text"><span class="brand-name">ai-gw</span><span class="brand-sub">AI-Gateway · alpha</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnav">Menü</button>
+    <nav id="hauptnav" class="mainnav" aria-label="Hauptnavigation"><ul><li><a href="index.html">Start</a></li><li><a href="funktionen.html">Funktionen</a></li><li><a href="oberflaeche.html">Oberfläche</a></li><li><a href="architektur.html">Architektur</a></li><li><a href="sicherheit.html">Sicherheit</a></li><li><a href="doku/index.html">Doku</a></li><li><a href="schnellstart.html">Schnellstart</a></li><li><a href="roadmap.html">Roadmap</a></li><li><a href="mitmachen.html" aria-current="page">Mitmachen</a></li></ul></nav>
+    <div class="tools">
+      <form class="search" role="search" action="suche.html" method="get">
+        <label for="q" class="sr-only">Suche</label>
+        <input id="q" name="q" type="search" placeholder="Suchen …" autocomplete="off">
+      </form>
+      <a class="lang-switch" href="en/contribute.html" hreflang="en" lang="en" aria-label="English version of this page"><span aria-hidden="true">EN</span><span class="lang-long" aria-hidden="true">English</span></a>
+    </div>
+  </div>
+</header>
+<main id="inhalt" tabindex="-1">
+<header class="page-head"><div class="wrap"><p class="eyebrow">AI-Gateway</p><h1>Mitmachen und Lizenz</h1><p class="lead">Wie man zu ai-gw beitragen kann, unter welchen Lizenzen Code und Dokumentation stehen und wie Sicherheitslücken gemeldet werden.</p></div></header><div class="page with-toc"><nav class="toc" aria-label="Inhalt dieser Seite"><p class="toc-title">Auf dieser Seite</p><ol><li><a href="#mitmachen">Mitmachen</a></li><li><a href="#regeln">Regeln für Beiträge</a></li><li><a href="#lizenz">Lizenz</a></li><li><a href="#sicherheit">Sicherheitslücke melden</a></li></ol></nav><div class="content"><article class="doc"><h2 id="mitmachen">Mitmachen<a class="anchor" href="#mitmachen" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<p>ai-gw wird offen entwickelt; Quellcode, Konzepte und Betriebshandbuch liegen im Repository <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">github.com/mupf-dev/ai-gw</a>. Willkommen sind insbesondere:</p>
+<ul><li><strong>Erfahrungsberichte und Fehlermeldungen</strong> als Issue – mit Version, Startkonfiguration (ohne Geheimnisse) und, wenn möglich, einem nachvollziehbaren Beispiel.</li><li><strong>Anbieter und Formate:</strong> Abweichungen einzelner Anbieter, neue Modellfähigkeiten, Interoperabilität mit Clients und SDKs, MCP-Clients.</li><li><strong>Guardrails:</strong> Falsch-Positive und -Negative der PII-Erkennung und der Injection-Heuristik, neue Erkennungsregeln, Beispiel-Plugins als WebAssembly-Komponente.</li><li><strong>Betrieb:</strong> Erfahrungen mit Kubernetes, Postgres, Redis, OpenTelemetry und großen Installationen; Lastmessungen auf anderer Hardware.</li><li><strong>Code</strong> in Rust für Gateway und Admin-API, Svelte und TypeScript für die Admin-UI, Dokumentation und Übersetzungen.</li></ul>
+<h2 id="regeln">Regeln für Beiträge<a class="anchor" href="#regeln" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<ul><li><strong>Prüfkette grün:</strong> <code>scripts/check.sh</code> bündelt Formatierung, Lints ohne Warnungen, Tests, <code>cargo deny</code> (Lizenzen und Sicherheitsmeldungen der Abhängigkeiten), Abgleich der OpenAPI-Spezifikation, Typprüfung und Build der UI sowie REUSE. Die CI führt dieselben Prüfungen bei Pull Requests aus.</li><li><strong>Admin-API geändert?</strong> OpenAPI-Spezifikation und TypeScript-Typen der UI neu erzeugen und mit einchecken.</li><li><strong>Jede Datei trägt SPDX-Lizenzangaben</strong> (REUSE-konform).</li><li><strong>Neue Abhängigkeiten</strong> nur nach Prüfung von Lizenz, Wartungsstand und Nutzen; die Lizenzübersicht <code>THIRD-PARTY.md</code> wird mit einem Skript erzeugt.</li><li><strong>Konzept vor Code:</strong> Größere Änderungen beginnen mit einem Abschnitt in <code>docs/konzept/</code> – mit Begründung, Sicherheitsbetrachtung und Messwerten, wo der heiße Pfad betroffen ist.</li><li><strong>Changelog</strong> im Abschnitt „Unreleased“ pflegen, inkompatible Änderungen ausdrücklich kennzeichnen.</li></ul>
+<pre><span class="code-lang">sh</span><code class="lang-sh"># typischer Ablauf
+git clone https://github.com/mupf-dev/ai-gw.git &amp;&amp; cd ai-gw
+scripts/setup-tools.sh        # Toolchain und Prüfwerkzeuge in festen Versionen
+scripts/check.sh              # alle Prüfungen lokal
+scripts/runtime-smoke.sh      # Release-Binary mit UI bauen, starten und prüfen</code></pre>
+<h2 id="lizenz">Lizenz<a class="anchor" href="#lizenz" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Bestandteil</th><th scope="col">Lizenz</th></tr></thead><tbody><tr><td>Code: Gateway, Admin-API, Admin-UI, Plugins, Werkzeuge</td><td>GNU AGPL-3.0-or-later</td></tr><tr><td>Dokumentation: <code>docs/</code>, README, CHANGELOG</td><td>CC BY 4.0</td></tr><tr><td>Diese Website: Inhalte</td><td>CC BY 4.0</td></tr><tr><td>Diese Website: Generator, Prüfskript, Stylesheet, Skript</td><td>GNU AGPL-3.0-or-later</td></tr></tbody></table></div>
+<p>Die AGPL stellt sicher, dass Verbesserungen auch dann der Gemeinschaft zugutekommen, wenn veränderte Fassungen als Dienst über das Netz angeboten werden – bei einem Gateway der typische Fall. Das Repository ist REUSE-konform; die Lizenzen der Abhängigkeiten stehen in <code>THIRD-PARTY.md</code> und werden mit <code>cargo deny</code> gegen eine Positivliste geprüft. Namensnennung: „ai-gw contributors“.</p>
+<h2 id="sicherheit">Sicherheitslücke melden<a class="anchor" href="#sicherheit" aria-label="Link zu diesem Abschnitt">#</a></h2>
+<p>Bitte <strong>keine öffentlichen Issues, Pull Requests oder Diskussionen</strong> für Sicherheitsprobleme. Meldungen bitte vertraulich per E-Mail an die im <a href="impressum.html">Impressum</a> genannte Adresse – mit Beschreibung, betroffener Version bzw. Commit und, wenn möglich, einem Nachweis. Ein vertraulicher Meldeweg direkt auf GitHub und eine Sicherheitsrichtlinie im Repository folgen mit dem ersten Release.</p>
+<p>Es gelten die üblichen Regeln koordinierter Offenlegung: Eingang wird bestätigt, die Lücke gemeinsam bewertet, behoben und danach mit Dank an die meldende Person veröffentlicht, sofern gewünscht.</p></article></div></div>
+</main>
+<footer class="site-footer">
+  <div class="bar">
+    <div class="foot-brand"><svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><p><strong>ai-gw</strong> (AI-Gateway) – Quelloffenes, selbst gehostetes AI-Gateway in Rust – ein Endpunkt für viele KI-Anbieter. Ein Binary für Gateway, Admin-API und Admin-UI.</p></div>
+    <p>Dokumentation unter <a href="https://creativecommons.org/licenses/by/4.0/deed.de" rel="license noopener">CC BY 4.0</a>, Code unter AGPL-3.0-or-later. Keine Cookies, kein Tracking, keine externen Ressourcen.</p>
+    <nav aria-label="Rechtliches und Service"><p><a href="mitmachen.html#lizenz">Lizenz</a> · <a href="mitmachen.html#sicherheit">Sicherheitslücke melden</a> · <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">Quellcode</a> · <a href="suche.html">Suche</a> · <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a></p></nav>
+  </div>
+</footer>
+<script src="assets/site.js?v=462edbf839" defer></script>
+</body>
+</html>

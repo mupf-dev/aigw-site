@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workload and agent identities · ai-gw</title>
+<meta name="description" content="AI agents and services sign in with signed access tokens – primarily from Microsoft Entra Agent ID – instead of a distributed gateway key. The token acts exactly like the key to which the identity is mapped.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-gw">
+<meta property="og:title" content="Workload and agent identities · ai-gw">
+<meta property="og:description" content="AI agents and services sign in with signed access tokens – primarily from Microsoft Entra Agent ID – instead of a distributed gateway key. The token acts exactly like the key to which the identity is mapped.">
+<meta property="og:image" content="https://mupf-dev.github.io/aigw-site/assets/img/ui/uebersicht-dunkel.webp">
+<meta property="og:locale" content="en_US">
+<meta name="theme-color" content="#0e1115">
+<link rel="canonical" href="../../en/docs/workload-identities.html">
+<link rel="alternate" hreflang="de" href="../../doku/workload-identitaeten.html">
+<link rel="alternate" hreflang="en" href="../../en/docs/workload-identities.html">
+<link rel="alternate" hreflang="x-default" href="../../doku/workload-identitaeten.html">
+<link rel="stylesheet" href="../../assets/style.css?v=dd200eddc7">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body class="k-doc">
+<a class="skip" href="#inhalt">Skip to content</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="../../en/index.html" aria-label="ai-gw (AI-Gateway) – Home">
+      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><span class="brand-text"><span class="brand-name">ai-gw</span><span class="brand-sub">AI-Gateway · alpha</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnav">Menu</button>
+    <nav id="hauptnav" class="mainnav" aria-label="Main navigation"><ul><li><a href="../../en/index.html">Home</a></li><li><a href="../../en/features.html">Features</a></li><li><a href="../../en/admin-ui.html">Admin UI</a></li><li><a href="../../en/architecture.html">Architecture</a></li><li><a href="../../en/security.html">Security</a></li><li><a href="../../en/docs/index.html" aria-current="page">Docs</a></li><li><a href="../../en/quickstart.html">Quickstart</a></li><li><a href="../../en/roadmap.html">Roadmap</a></li><li><a href="../../en/contribute.html">Contribute</a></li></ul></nav>
+    <div class="tools">
+      <form class="search" role="search" action="../../en/search.html" method="get">
+        <label for="q" class="sr-only">Search</label>
+        <input id="q" name="q" type="search" placeholder="Search …" autocomplete="off">
+      </form>
+      <a class="lang-switch" href="../../doku/workload-identitaeten.html" hreflang="de" lang="de" aria-label="Deutsche Fassung dieser Seite"><span aria-hidden="true">DE</span><span class="lang-long" aria-hidden="true">Deutsch</span></a>
+    </div>
+  </div>
+</header>
+<main id="inhalt" tabindex="-1">
+<header class="page-head"><div class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../index.html">Home</a></li><li><a href="index.html">Docs</a></li><li><span aria-current="page">Workload and agent identities</span></li></ol></nav><p class="eyebrow">Concepts</p><h1>Workload and agent identities</h1><p class="lead">AI agents and services sign in with signed access tokens – primarily from Microsoft Entra Agent ID – instead of a distributed gateway key. The token acts exactly like the key to which the identity is mapped.</p><p class="meta">Adapted from: Concept 18 “Workload and agent identities”</p></div></header><div class="page with-toc"><nav class="toc" aria-label="Contents of this page"><p class="toc-title">On this page</p><ol><li><a href="#aussteller">Issuer configuration</a></li><li><a href="#zuordnung">Mapping to keys</a></li><li><a href="#pruefung">Validation</a></li><li><a href="#attribution">Traceability</a></li><li><a href="#grenzen">Security and limits</a></li></ol></nav><div class="content"><article class="doc"><p>Virtual API keys are simple, but they have to be distributed, stored securely and rotated. For AI agents and services with their own identity this is unnecessary: they can obtain a short-lived access token from their identity provider. ai-gw accepts such <strong>signed tokens (JWT)</strong> on the data plane – OpenAI and Anthropic entry points, embeddings, images, audio, model list – and in the MCP gateway as <code>Authorization: Bearer …</code>.</p>
+<p>The main case is <strong>Microsoft Entra Agent ID</strong>: AI agents with their own Entra identity sign in without a gateway key. The same mechanism works in general for workload identities such as service principals, managed identities or other OAuth 2.0 issuers.</p>
+<pre><span class="code-lang">text</span><code class="lang-text">Agent ──Client Credentials / On-Behalf-Of──► Entra ID: token for the gateway API
+  └─ Authorization: Bearer eyJ… ─► ai-gw
+        1. Check signature, issuer, audience, lifetime, tenant, and if set role/scope
+        2. (issuer, identifier) → mapped API key
+        3. from here on as with the key: grants, limits, budgets, guardrails, tools, MCP
+  Provider: only the deployment's credentials – never the token</code></pre>
+<h2 id="aussteller">Issuer configuration<a class="anchor" href="#aussteller" aria-label="Link to this section">#</a></h2>
+<p>Trusted issuers are defined in the operator's startup configuration, not in the admin API:</p>
+<pre><span class="code-lang">yaml</span><code class="lang-yaml">auth:
+  jwt:
+    issuers:
+      - name: entra-prod
+        profile: entra                         # generic | entra
+        tenant_id: "&lt;tenant-guid&gt;"
+        audiences: ["api://ai-gw", "&lt;client-id-of-the-gateway&gt;"]
+        required_roles: [Gateway.Invoke]       # optional
+        # required_scopes: [access_as_user]    # optional, for delegated tokens
+        # require_agent: true                  # agent identities only</code></pre>
+<p>The <code>entra</code> profile derives the issuer (token versions 1 and 2) and the key source from the tenant ID. Generic issuers specify their key source explicitly or via OpenID discovery.</p>
+<h2 id="zuordnung">Mapping to keys<a class="anchor" href="#zuordnung" aria-label="Link to this section">#</a></h2>
+<p>Instead of a new resource kind, ai-gw extends the <strong>virtual key</strong>: a key carries a list of identities made up of issuer and identifier (by default the app ID of the agent identity). A token with a matching combination acts <strong>exactly like this key</strong> – model grants, limits, budgets, team and organisation, guardrail bindings, tool policies, MCP grants, payload policy and attribution in the request log apply without special logic.</p>
+<ul><li>Each identity belongs to at most <strong>one</strong> active key; the admin API and GitOps check this.</li><li>Unknown identities are rejected (<code>403</code>) – there is <strong>no automatic provisioning</strong>. The Microsoft documentation explicitly advises against authorising solely on the basis of an agent claim.</li><li>A key can carry several identities, such as all instances of an agent; they then share limits and budgets.</li><li>Blocked or expired keys also block token sign-in; when a key is rotated, the identities move along with it.</li></ul>
+<h2 id="pruefung">Validation<a class="anchor" href="#pruefung" aria-label="Link to this section">#</a></h2>
+<ul><li>A bearer value in JWT format is treated as a token, anything else as an API key; virtual keys never contain dots.</li><li>Size limit before any evaluation; only <strong>RS256 and ES256</strong>. <code>none</code>, symmetric algorithms and critical header extensions are never accepted, and keys are never fetched based on token contents – only from the configured source.</li><li>Signature verification with aws-lc-rs, no home-grown cryptography. Issuer exact, audience from the list, expiry mandatory, clock skew configurable, and for Entra additionally the tenant.</li><li>Key sets are loaded via the shared component for outbound connections (HTTPS only, no redirects, size and time limits), cached, and reloaded with throttling when an unknown key ID appears. If the issuer is unreachable, the known keys remain in use.</li><li>Validated tokens are kept in a bounded cache until they expire; the mapping to the key is nevertheless evaluated on every request against the current configuration snapshot.</li></ul>
+<p>The admin UI's OIDC login uses the same validation components.</p>
+<h2 id="attribution">Traceability<a class="anchor" href="#attribution" aria-label="Link to this section">#</a></h2>
+<p>The request log records who made the request: issuer, identifier, kind (application, delegated, agent user account), whether it is an agent identity, and for delegated tokens the user and the agent's blueprint – never the token itself. Only admins and auditors see the user identifier. Traces and OpenTelemetry logs carry issuer, identifier and kind. There are deliberately no per-agent metric labels, because the number of identities is unbounded.</p>
+<h2 id="grenzen">Security and limits<a class="anchor" href="#grenzen" aria-label="Link to this section">#</a></h2>
+<ul><li><strong>Tokens never go to providers:</strong> Outbound requests are built from the credentials of the deployment or MCP server; incoming headers are not passed through.</li><li><strong>Revocation:</strong> Tokens are valid until they expire; ai-gw does not query the issuer for revocation. Removing the identity from the key or blocking the key takes effect immediately.</li><li><strong>Tenant-wide tokens:</strong> Without a role or scope requirement, any application in the tenant can obtain a token for the gateway API – but only registered identities are mapped. Recommendation: define an app role (e.g. <code>Gateway.Invoke</code>), enforce assignment and set <code>required_roles</code>.</li><li>Error responses reveal no details (<code>401</code> or <code>403</code>); reasons are recorded without the token in the debug log.</li></ul>
+<p>In the admin UI, identities are managed on the key; only configured issuers are offered. See also <a href="mcp-gateway.html">MCP gateway</a> and <a href="../security.html">Guardrails &amp; security</a>.</p></article><nav class="pager" aria-label="More pages"><a rel="prev" href="wasm-plugins.html"><span aria-hidden="true">←</span> WASM plugins</a></nav></div></div>
+</main>
+<footer class="site-footer">
+  <div class="bar">
+    <div class="foot-brand"><svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><p><strong>ai-gw</strong> (AI-Gateway) – Open-source, self-hosted AI gateway in Rust – one endpoint for many AI providers. One binary for gateway, admin API and admin UI.</p></div>
+    <p>Documentation under <a href="https://creativecommons.org/licenses/by/4.0/deed.en" rel="license noopener">CC BY 4.0</a>, code under AGPL-3.0-or-later. No cookies, no tracking, no third-party resources.</p>
+    <nav aria-label="Legal and service"><p><a href="../../en/contribute.html#license">License</a> · <a href="../../en/contribute.html#security">Report a vulnerability</a> · <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">Source code</a> · <a href="../../en/search.html">Search</a> · <a href="../../en/legal-notice.html">Legal notice</a> · <a href="../../en/privacy.html">Privacy policy</a></p></nav>
+  </div>
+</footer>
+<script src="../../assets/site.js?v=462edbf839" defer></script>
+</body>
+</html>

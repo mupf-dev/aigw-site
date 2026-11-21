@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Status &amp; roadmap · ai-gw</title>
+<meta name="description" content="Where ai-gw stands in November 2026 – what is implemented, what is missing for the first release and which topics come after.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-gw">
+<meta property="og:title" content="Status &amp; roadmap · ai-gw">
+<meta property="og:description" content="Where ai-gw stands in November 2026 – what is implemented, what is missing for the first release and which topics come after.">
+<meta property="og:image" content="https://mupf-dev.github.io/aigw-site/assets/img/ui/uebersicht-dunkel.webp">
+<meta property="og:locale" content="en_US">
+<meta name="theme-color" content="#0e1115">
+<link rel="canonical" href="../en/roadmap.html">
+<link rel="alternate" hreflang="de" href="../roadmap.html">
+<link rel="alternate" hreflang="en" href="../en/roadmap.html">
+<link rel="alternate" hreflang="x-default" href="../roadmap.html">
+<link rel="stylesheet" href="../assets/style.css?v=dd200eddc7">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body class="k-page">
+<a class="skip" href="#inhalt">Skip to content</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="../en/index.html" aria-label="ai-gw (AI-Gateway) – Home">
+      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><span class="brand-text"><span class="brand-name">ai-gw</span><span class="brand-sub">AI-Gateway · alpha</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnav">Menu</button>
+    <nav id="hauptnav" class="mainnav" aria-label="Main navigation"><ul><li><a href="../en/index.html">Home</a></li><li><a href="../en/features.html">Features</a></li><li><a href="../en/admin-ui.html">Admin UI</a></li><li><a href="../en/architecture.html">Architecture</a></li><li><a href="../en/security.html">Security</a></li><li><a href="../en/docs/index.html">Docs</a></li><li><a href="../en/quickstart.html">Quickstart</a></li><li><a href="../en/roadmap.html" aria-current="page">Roadmap</a></li><li><a href="../en/contribute.html">Contribute</a></li></ul></nav>
+    <div class="tools">
+      <form class="search" role="search" action="../en/search.html" method="get">
+        <label for="q" class="sr-only">Search</label>
+        <input id="q" name="q" type="search" placeholder="Search …" autocomplete="off">
+      </form>
+      <a class="lang-switch" href="../roadmap.html" hreflang="de" lang="de" aria-label="Deutsche Fassung dieser Seite"><span aria-hidden="true">DE</span><span class="lang-long" aria-hidden="true">Deutsch</span></a>
+    </div>
+  </div>
+</header>
+<main id="inhalt" tabindex="-1">
+<header class="page-head"><div class="wrap"><p class="eyebrow">AI-Gateway</p><h1>Status &amp; roadmap</h1><p class="lead">Where ai-gw stands in November 2026 – what is implemented, what is missing for the first release and which topics come after.</p></div></header><div class="page with-toc"><nav class="toc" aria-label="Contents of this page"><p class="toc-title">On this page</p><ol><li><a href="#stand">Status in November 2026</a></li><li><a href="#umgesetzt">Implemented</a></li><li><a href="#release">Until the first release</a></li><li><a href="#danach">Afterwards</a></li></ol></nav><div class="content"><article class="doc"><h2 id="stand">Status in November 2026<a class="anchor" href="#stand" aria-label="Link to this section">#</a></h2>
+<p>ai-gw has been public since November 2026. The planned feature set of the first version 0.1 is <strong>implemented and tested</strong>: data plane with OpenAI and Anthropic input, all listed providers, routing and resilience, tenants, limits and budgets, a plugin chain with guardrails, response cache, MCP gateway, admin API and admin UI, GitOps, observability, SQLite and Postgres, container image for amd64 and arm64. Since then, WASM plugins with signatures, tool inventory and tool policies, further guardrails (<code>prompt-leak</code>, <code>link-guard</code>, <code>language</code>, invisible characters), guardrail profiles, Microsoft Entra ID in many places and workload/agent identities have been added, among others. The full <a href="https://github.com/mupf-dev/ai-gw/blob/main/CHANGELOG.md" rel="noopener">changelog</a> is in the repository.</p>
+<blockquote><p><strong>No release yet.</strong> There is no published version and no ready-made container images yet; you build from source. Until 1.0, configuration, manifest format (<code>aigw/v1alpha1</code>) and admin API may change incompatibly between minor versions.</p></blockquote>
+<h2 id="umgesetzt">Implemented<a class="anchor" href="#umgesetzt" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Area</th><th scope="col">Status</th></tr></thead><tbody><tr><td>Endpoints</td><td>chat completions, messages, responses, embeddings, images, audio, models; streaming with backpressure</td></tr><tr><td>Providers</td><td>OpenAI, Azure OpenAI, Claude in Azure AI Foundry, Anthropic, AWS Bedrock, Gemini, Vertex AI, Mistral, Ollama, vLLM, OpenAI-compatible</td></tr><tr><td>Routing</td><td>model groups, four strategies, priorities, retries, fallbacks, circuit breakers, health checks</td></tr><tr><td>Access</td><td>organizations, teams, users, virtual keys, workload/agent identities (JWT, Entra Agent ID)</td></tr><tr><td>Limits and costs</td><td>request, token and concurrency limits, budgets, prices with suggestions, three counter backends</td></tr><tr><td>Guardrails</td><td><code>pii</code>, <code>prompt-filter</code>, <code>prompt-leak</code>, <code>link-guard</code>, <code>language</code>, <code>content-safety</code>, profiles</td></tr><tr><td>Extensibility</td><td>plugin chain, webhooks, sandboxed WASM plugins with Ed25519 signatures</td></tr><tr><td>Tools and MCP</td><td>MCP gateway with grants, tool inventory, tool policies</td></tr><tr><td>Cache</td><td>exact (RAM, Redis) and semantic (HNSW, pgvector, Redis Search)</td></tr><tr><td>Operations</td><td>admin UI, admin API (OpenAPI), OIDC and roles, GitOps, audit log with hash chain, Prometheus, OpenTelemetry, Compose, Kubernetes</td></tr><tr><td>Performance</td><td>load measurements and a comparison with LiteLLM under equal conditions (<a href="docs/performance.html">measurements</a>)</td></tr></tbody></table></div>
+<h2 id="release">Until the first release<a class="anchor" href="#release" aria-label="Link to this section">#</a></h2>
+<ul><li>Release 0.1.0 with ready-made container images for amd64 and arm64.</li><li>Legal confirmation of the license of the embedded tokenizer tables (MIT); they can already be switched off.</li><li>A security policy and a confidential reporting channel in the repository.</li></ul>
+<h2 id="danach">Afterwards<a class="anchor" href="#danach" aria-label="Link to this section">#</a></h2>
+<p>Topics marked as open or “later” in the concept documents – in no fixed order:</p>
+<ul><li><strong>MCP server for administration</strong>, generated from the OpenAPI specification, so that admin API, UI and MCP are on par.</li><li><strong>MCP gateway:</strong> sessions across multiple instances, resumption of SSE streams, OAuth to the upstream, grants at resource and prompt level, the plugin chain on tool arguments and results.</li><li><strong>WASM plugins:</strong> keyless signatures with a transparency log in addition to own keys, four-eyes approval, more host functions, asynchronous execution.</li><li><strong>Performance:</strong> a faster stream path (fewer small allocations per chunk), batched counter calls for Redis, the request-log writer on its own core.</li><li><strong>Logs:</strong> an optional backend for very large log volumes.</li><li><strong>Embedding in platforms:</strong> ai-gw is API-first, a single binary and declaratively configured so that platforms can embed it – for example <a href="https://mupf-dev.github.io/cloud-project-site/en/index.html" rel="noopener">BYOC (Build Your Own Cloud)</a>, whose service catalog includes an AI gateway.</li></ul>
+<p>Wishes and priorities from practice are welcome: <a href="contribute.html">Contribute</a>.</p></article></div></div>
+</main>
+<footer class="site-footer">
+  <div class="bar">
+    <div class="foot-brand"><svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><p><strong>ai-gw</strong> (AI-Gateway) – Open-source, self-hosted AI gateway in Rust – one endpoint for many AI providers. One binary for gateway, admin API and admin UI.</p></div>
+    <p>Documentation under <a href="https://creativecommons.org/licenses/by/4.0/deed.en" rel="license noopener">CC BY 4.0</a>, code under AGPL-3.0-or-later. No cookies, no tracking, no third-party resources.</p>
+    <nav aria-label="Legal and service"><p><a href="../en/contribute.html#license">License</a> · <a href="../en/contribute.html#security">Report a vulnerability</a> · <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">Source code</a> · <a href="../en/search.html">Search</a> · <a href="../en/legal-notice.html">Legal notice</a> · <a href="../en/privacy.html">Privacy policy</a></p></nav>
+  </div>
+</footer>
+<script src="../assets/site.js?v=462edbf839" defer></script>
+</body>
+</html>

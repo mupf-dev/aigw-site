@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WASM plugins · ai-gw</title>
+<meta name="description" content="Custom plugin logic as a WebAssembly component – in a sandbox inside the gateway process, with limits for CPU, time and memory, hot reload and optional mandatory Ed25519 signatures.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-gw">
+<meta property="og:title" content="WASM plugins · ai-gw">
+<meta property="og:description" content="Custom plugin logic as a WebAssembly component – in a sandbox inside the gateway process, with limits for CPU, time and memory, hot reload and optional mandatory Ed25519 signatures.">
+<meta property="og:image" content="https://mupf-dev.github.io/aigw-site/assets/img/ui/uebersicht-dunkel.webp">
+<meta property="og:locale" content="en_US">
+<meta name="theme-color" content="#0e1115">
+<link rel="canonical" href="../../en/docs/wasm-plugins.html">
+<link rel="alternate" hreflang="de" href="../../doku/wasm-plugins.html">
+<link rel="alternate" hreflang="en" href="../../en/docs/wasm-plugins.html">
+<link rel="alternate" hreflang="x-default" href="../../doku/wasm-plugins.html">
+<link rel="stylesheet" href="../../assets/style.css?v=dd200eddc7">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body class="k-doc">
+<a class="skip" href="#inhalt">Skip to content</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="../../en/index.html" aria-label="ai-gw (AI-Gateway) – Home">
+      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><span class="brand-text"><span class="brand-name">ai-gw</span><span class="brand-sub">AI-Gateway · alpha</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnav">Menu</button>
+    <nav id="hauptnav" class="mainnav" aria-label="Main navigation"><ul><li><a href="../../en/index.html">Home</a></li><li><a href="../../en/features.html">Features</a></li><li><a href="../../en/admin-ui.html">Admin UI</a></li><li><a href="../../en/architecture.html">Architecture</a></li><li><a href="../../en/security.html">Security</a></li><li><a href="../../en/docs/index.html" aria-current="page">Docs</a></li><li><a href="../../en/quickstart.html">Quickstart</a></li><li><a href="../../en/roadmap.html">Roadmap</a></li><li><a href="../../en/contribute.html">Contribute</a></li></ul></nav>
+    <div class="tools">
+      <form class="search" role="search" action="../../en/search.html" method="get">
+        <label for="q" class="sr-only">Search</label>
+        <input id="q" name="q" type="search" placeholder="Search …" autocomplete="off">
+      </form>
+      <a class="lang-switch" href="../../doku/wasm-plugins.html" hreflang="de" lang="de" aria-label="Deutsche Fassung dieser Seite"><span aria-hidden="true">DE</span><span class="lang-long" aria-hidden="true">Deutsch</span></a>
+    </div>
+  </div>
+</header>
+<main id="inhalt" tabindex="-1">
+<header class="page-head"><div class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../index.html">Home</a></li><li><a href="index.html">Docs</a></li><li><span aria-current="page">WASM plugins</span></li></ol></nav><p class="eyebrow">Concepts</p><h1>WASM plugins</h1><p class="lead">Custom plugin logic as a WebAssembly component – in a sandbox inside the gateway process, with limits for CPU, time and memory, hot reload and optional mandatory Ed25519 signatures.</p><p class="meta">Adapted from: Concept 17 “WASM plugins” and measurements</p></div></header><div class="page with-toc"><nav class="toc" aria-label="Contents of this page"><p class="toc-title">On this page</p><ol><li><a href="#schnittstelle">Interface</a></li><li><a href="#sandbox">Sandbox and limits</a></li><li><a href="#signaturen">Modules, approval and signatures</a></li><li><a href="#bindung">Binding</a></li><li><a href="#hot-reload">Compilation and hot reload</a></li><li><a href="#messwerte">Measurements</a></li><li><a href="#beispiele">Examples and metrics</a></li></ol></nav><div class="content"><article class="doc"><p>The built-in plugins cover the common cases; for custom rules there used to be only the webhook – with a network round trip per call. WASM plugins close the gap: operators upload a <strong>WebAssembly component</strong> that ai-gw runs in the plugin chain without a fork and without an external service – in-process, at a few tens of microseconds per call and also on the stream path.</p>
+<pre><span class="code-lang">text</span><code class="lang-text">Upload (admin API, UI) or file in the startup configuration
+   └─► Module in the database ─► Configuration snapshot ─► Plugin chain (hot reload)
+Binding  plugin: wasm, module: &lt;name&gt;
+   └─► compile (cache per SHA-256) ─► describe(config) ─► instance per call</code></pre>
+<h2 id="schnittstelle">Interface<a class="anchor" href="#schnittstelle" aria-label="Link to this section">#</a></h2>
+<p>The interface is a WIT world (<code>aigw:plugin@0.1.0</code>) with two functions:</p>
+<ul><li><code>describe(config)</code> is called once when the chain is built, validates the configuration and reports the requested phases (request, response, stream event).</li><li><code>handle(input)</code> receives the phase, payload in the gateway's intermediate representation as JSON, request metadata (request ID, entry format, model group, key, team, organisation) and only the client headers that have been explicitly allowed.</li></ul>
+<p>The result is an action: <strong>pass through</strong>, <strong>modify</strong>, <strong>block</strong> (like a guardrail rejection), <strong>reject</strong> with an error code, <strong>respond with a fixed reply</strong> (request phase only) or <strong>discard</strong> (stream only). Plugins can set headers towards the provider and on the response – sign-in and hop headers remain blocked.</p>
+<p>The payload is deliberately JSON instead of fixed WIT records: the intermediate representation has many optional fields and grows with every provider. This keeps the WIT world stable, and plugins can use any JSON library of their language. The only host function is <code>log</code> – truncated and limited, with the module name in the gateway log.</p>
+<h2 id="sandbox">Sandbox and limits<a class="anchor" href="#sandbox" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Limit</th><th scope="col">Implementation</th></tr></thead><tbody><tr><td>CPU</td><td><strong>Fuel</strong>: the runtime counts instructions; when the quota is used up, the call is aborted</td></tr><tr><td>Time</td><td><strong>Epoch interrupt</strong> with a deadline per binding (default 100 ms)</td></tr><tr><td>Memory</td><td>Upper bound per instance (default 32 MiB, at most 256 MiB)</td></tr><tr><td>Instances</td><td>Pooling allocator with a fixed number of concurrent instances</td></tr><tr><td>WASI</td><td>WASI 0.2 <strong>without grants</strong>: no file system, no environment, no network; only clocks and randomness are allowed</td></tr><tr><td>Imports</td><td>only WASI 0.2 and the host interface; anything else fails at load time</td></tr><tr><td>State</td><td><strong>new instance per call</strong> – no state between requests or tenants</td></tr></tbody></table></div>
+<p>What happens on an error – quota used up, time expired, memory limit, crash, invalid output – is decided by the binding's <code>failMode</code>; the default is <code>closed</code>, because security plugins should reject when in doubt. The request and response phases run outside the gateway's async workers, so that a slow module does not hold up other requests.</p>
+<h2 id="signaturen">Modules, approval and signatures<a class="anchor" href="#signaturen" aria-label="Link to this section">#</a></h2>
+<ul><li><strong>Upload</strong> via admin API or UI with a mandatory SHA-256; name, size and the component format are checked. Replacing and deleting require <code>If-Match</code>; deletion is only possible without referencing bindings.</li><li><strong>Only global admins upload</strong>, because a module runs in the gateway process. Organisation and team admins may <strong>bind</strong> approved modules at their level.</li><li>Bindings can pin the SHA-256 and thereby allow exactly one version.</li><li><strong>Signatures:</strong> With configured trusted keys, ai-gw requires an Ed25519 signature over the module's hash (with its own domain prefix). The private key stays outside the gateway, for example in the build system; <code>aigw wasm keygen</code> and <code>aigw wasm sign</code> help with this. This also protects against write access to the database or a compromised admin account.</li><li>Modules from the startup configuration enable a “YAML only” mode; a mismatching hash or a missing signature prevents startup.</li></ul>
+<h2 id="bindung">Binding<a class="anchor" href="#bindung" aria-label="Link to this section">#</a></h2>
+<pre><span class="code-lang">yaml</span><code class="lang-yaml">apiVersion: aigw/v1alpha1
+kind: PluginBinding
+metadata: {name: team-keywords}
+spec:
+  plugin: wasm
+  scope: {level: team, target: research}
+  failMode: closed
+  timeoutMs: 50
+  config:
+    module: keyword-guard
+    config: {block: [secretproject], mask: [internal]}
+    phases: [request]
+    includeHeaders: [x-client-app]
+    maxMemoryMb: 16</code></pre>
+<p>If a module reports only the response phase, the gateway buffers streamed responses; if it also reports stream events, it runs live on every chunk.</p>
+<h2 id="hot-reload">Compilation and hot reload<a class="anchor" href="#hot-reload" aria-label="Link to this section">#</a></h2>
+<p>One engine per process compiles each component once per SHA-256 and keeps the result in a cache; multiple bindings of the same module share the compilation. A new module under the same name takes effect without a restart via the configuration snapshot; running calls finish with the old instance. The encrypted snapshot cache contains the modules, so that even a start without a database can run WASM plugins.</p>
+<h2 id="messwerte">Measurements<a class="anchor" href="#messwerte" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Case</th><th scope="col">Median</th></tr></thead><tbody><tr><td>Empty plugin, request phase (including JSON, fresh instance and result)</td><td>≈ 43 µs</td></tr><tr><td>Empty plugin, one stream event</td><td>≈ 22 µs</td></tr><tr><td>“keyword-guard” example, request phase</td><td>≈ 79 µs</td></tr></tbody></table></div>
+<p>This is well below the gateway's latency budget and three to four orders of magnitude below a webhook call. The example modules are 70 to 130 KB in size. The feature increases the binary by around 14 MB; anyone who does not need WASM plugins disables them or builds without the feature.</p>
+<h2 id="beispiele">Examples and metrics<a class="anchor" href="#beispiele" aria-label="Link to this section">#</a></h2>
+<p>The repository contains the example plugin <code>keyword-guard</code> (block or mask keywords, set response headers) and test plugins. Prometheus metrics count calls by result, errors by type, duration, fuel consumed, compilations and rejected signatures.</p>
+<p>Conceivable later: keyless signatures with a transparency log, approval under the four-eyes principle, further host functions and asynchronous execution.</p></article><nav class="pager" aria-label="More pages"><a rel="prev" href="tool-policies.html"><span aria-hidden="true">←</span> Tool inventory and tool policies</a><a rel="next" href="workload-identities.html">Workload and agent identities <span aria-hidden="true">→</span></a></nav></div></div>
+</main>
+<footer class="site-footer">
+  <div class="bar">
+    <div class="foot-brand"><svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><p><strong>ai-gw</strong> (AI-Gateway) – Open-source, self-hosted AI gateway in Rust – one endpoint for many AI providers. One binary for gateway, admin API and admin UI.</p></div>
+    <p>Documentation under <a href="https://creativecommons.org/licenses/by/4.0/deed.en" rel="license noopener">CC BY 4.0</a>, code under AGPL-3.0-or-later. No cookies, no tracking, no third-party resources.</p>
+    <nav aria-label="Legal and service"><p><a href="../../en/contribute.html#license">License</a> · <a href="../../en/contribute.html#security">Report a vulnerability</a> · <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">Source code</a> · <a href="../../en/search.html">Search</a> · <a href="../../en/legal-notice.html">Legal notice</a> · <a href="../../en/privacy.html">Privacy policy</a></p></nav>
+  </div>
+</footer>
+<script src="../../assets/site.js?v=462edbf839" defer></script>
+</body>
+</html>

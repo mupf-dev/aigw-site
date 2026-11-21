@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guardrails &amp; security · ai-gw</title>
+<meta name="description" content="How ai-gw inspects prompts and responses – PII, prompt injection, system-prompt leaks, data exfiltration via links, languages, external content safety – and which protections apply inside the gateway itself.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-gw">
+<meta property="og:title" content="Guardrails &amp; security · ai-gw">
+<meta property="og:description" content="How ai-gw inspects prompts and responses – PII, prompt injection, system-prompt leaks, data exfiltration via links, languages, external content safety – and which protections apply inside the gateway itself.">
+<meta property="og:image" content="https://mupf-dev.github.io/aigw-site/assets/img/ui/uebersicht-dunkel.webp">
+<meta property="og:locale" content="en_US">
+<meta name="theme-color" content="#0e1115">
+<link rel="canonical" href="../en/security.html">
+<link rel="alternate" hreflang="de" href="../sicherheit.html">
+<link rel="alternate" hreflang="en" href="../en/security.html">
+<link rel="alternate" hreflang="x-default" href="../sicherheit.html">
+<link rel="stylesheet" href="../assets/style.css?v=dd200eddc7">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body class="k-page">
+<a class="skip" href="#inhalt">Skip to content</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="../en/index.html" aria-label="ai-gw (AI-Gateway) – Home">
+      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><span class="brand-text"><span class="brand-name">ai-gw</span><span class="brand-sub">AI-Gateway · alpha</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnav">Menu</button>
+    <nav id="hauptnav" class="mainnav" aria-label="Main navigation"><ul><li><a href="../en/index.html">Home</a></li><li><a href="../en/features.html">Features</a></li><li><a href="../en/admin-ui.html">Admin UI</a></li><li><a href="../en/architecture.html">Architecture</a></li><li><a href="../en/security.html" aria-current="page">Security</a></li><li><a href="../en/docs/index.html">Docs</a></li><li><a href="../en/quickstart.html">Quickstart</a></li><li><a href="../en/roadmap.html">Roadmap</a></li><li><a href="../en/contribute.html">Contribute</a></li></ul></nav>
+    <div class="tools">
+      <form class="search" role="search" action="../en/search.html" method="get">
+        <label for="q" class="sr-only">Search</label>
+        <input id="q" name="q" type="search" placeholder="Search …" autocomplete="off">
+      </form>
+      <a class="lang-switch" href="../sicherheit.html" hreflang="de" lang="de" aria-label="Deutsche Fassung dieser Seite"><span aria-hidden="true">DE</span><span class="lang-long" aria-hidden="true">Deutsch</span></a>
+    </div>
+  </div>
+</header>
+<main id="inhalt" tabindex="-1">
+<header class="page-head"><div class="wrap"><p class="eyebrow">AI-Gateway</p><h1>Guardrails &amp; security</h1><p class="lead">How ai-gw inspects prompts and responses – PII, prompt injection, system-prompt leaks, data exfiltration via links, languages, external content safety – and which protections apply inside the gateway itself.</p></div></header><div class="page with-toc"><nav class="toc" aria-label="Contents of this page"><p class="toc-title">On this page</p><ol><li><a href="#guardrails">Guardrails as plugins</a></li><li><a href="#pii">PII and secrets</a></li><li><a href="#injection">Prompt injection and invisible characters</a></li><li><a href="#prompt-leak">System-prompt leaks</a></li><li><a href="#link-guard">Exfiltration via links</a></li><li><a href="#content-safety">External content safety</a></li><li><a href="#profile">Default profiles</a></li><li><a href="#tools">Tools and MCP</a></li><li><a href="#gateway">Security of the gateway</a></li></ol></nav><div class="content"><article class="doc"><p>An AI gateway sees every request and every response. That makes it the right place for protective rules – and obliges it to handle data, keys and outbound connections carefully itself. This page covers both.</p>
+<h2 id="guardrails">Guardrails as plugins<a class="anchor" href="#guardrails" aria-label="Link to this section">#</a></h2>
+<p>Guardrails are ordinary plugins in the chain. They are bound globally or per organization, team, key or model group, inherit inwards, can be locked against overrides and have a defined failure behavior (<code>failMode: closed</code> rejects, <code>open</code> lets through). A typical order: cheap checks that reject early first, then masking, then external services on the already masked text.</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Plugin</th><th scope="col">Phase</th><th scope="col">Purpose</th></tr></thead><tbody><tr><td><code>prompt-filter</code></td><td>request, optionally response and stream</td><td>word and phrase lists, regex rules, prompt-injection heuristics, length and count limits, invisible Unicode characters</td></tr><tr><td><code>pii</code></td><td>request, response, stream</td><td>detect personal data and secrets; mask, remove, reject, pseudonymize (with re-identification) or count</td></tr><tr><td><code>prompt-leak</code></td><td>request, response, stream</td><td>system-prompt leaks via a canary token, optionally verbatim excerpts</td></tr><tr><td><code>link-guard</code></td><td>response, stream</td><td>prevent exfiltration via links and images to foreign domains</td></tr><tr><td><code>language</code></td><td>request, optionally response</td><td>allowed or blocked languages</td></tr><tr><td><code>content-safety</code></td><td>request, response, stream</td><td>external checks via Azure AI Content Safety, OpenAI Moderation or a custom guard model</td></tr></tbody></table></div>
+<p>Rejected responses come back in the client's format (e.g. <code>finish_reason: content_filter</code> or a refusal in Anthropic format) and carry the <code>x-aigw-guardrail</code> header naming the triggering plugin.</p>
+<h2 id="pii">PII and secrets<a class="anchor" href="#pii" aria-label="Link to this section">#</a></h2>
+<p>PII detection is a dedicated rule-based engine without an external model. It detects e-mail addresses, phone numbers (international and German), IBANs (with checksum for 75 countries), credit cards (BIN ranges and Luhn), German tax IDs, social security, ID card and passport numbers (each with check digit), IP addresses, credentials in URLs and API keys and tokens of common services – plus an entropy heuristic for unknown secrets.</p>
+<ul><li><strong>Actions per category:</strong> mask (<code>[EMAIL_1]</code>), remove, reject, pseudonymize with re-identification in the response, or only count.</li><li><strong>Allowlist</strong> for known, harmless values (such as your own support address).</li><li><strong>Fast:</strong> a 4 KB prompt with findings is checked in about 23 µs (median, one core).</li><li>On request the same engine masks content in the request log.</li></ul>
+<p>The engine deliberately does not detect names and postal addresses – without a language model they would be too error-prone. An external service or guard model can be plugged in via <code>content-safety</code> or a webhook instead.</p>
+<h2 id="injection">Prompt injection and invisible characters<a class="anchor" href="#injection" aria-label="Link to this section">#</a></h2>
+<p><code>prompt-filter</code> weighs known injection signals (“ignore all previous instructions”, role switches, chat-template tokens …) and rejects above a threshold or only flags. It also detects <strong>invisible Unicode characters</strong> – tag characters (“ASCII smuggling”), zero-width, bidi and format characters – and strips them or rejects; legitimate cases such as emoji sequences or joiners in Persian and Indic scripts are preserved. Word and regex rules can also check the output, in streams across chunk boundaries.</p>
+<h2 id="prompt-leak">System-prompt leaks<a class="anchor" href="#prompt-leak" aria-label="Link to this section">#</a></h2>
+<p><code>prompt-leak</code> inserts a random <strong>canary token</strong> into the system prompt – new per request or stable, so that providers' prompt caching keeps working. If the token appears in the response, stream, tool arguments or reasoning, the output is blocked or the token removed; it never reaches the client or the log. Optionally the plugin detects verbatim excerpts of the system prompt via word n-grams.</p>
+<h2 id="link-guard">Exfiltration via links<a class="anchor" href="#link-guard" aria-label="Link to this section">#</a></h2>
+<p>An injected instruction – for example in a tool result or a document – can make a model write confidential data into an image URL. The chat client loads the image when rendering, without a click, and the data ends up with the attacker. <code>link-guard</code> removes images pointing to foreign domains and can defuse links, query parameters or long paths; allowed domains are configured explicitly.</p>
+<h2 id="content-safety">External content safety<a class="anchor" href="#content-safety" aria-label="Link to this section">#</a></h2>
+<p><code>content-safety</code> queries Azure AI Content Safety (via API key or Microsoft Entra ID), OpenAI Moderation or a <strong>custom guard model</strong> (e.g. Llama Guard) through a model group of the gateway. Thresholds per category, checks on input, output or both, output buffered or sentence by sentence in streams; tool-call arguments are checked too. The guard model's costs are recorded and can be capped.</p>
+<h2 id="profile">Default profiles<a class="anchor" href="#profile" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Profile</th><th scope="col">Contents</th></tr></thead><tbody><tr><td><strong>Basic</strong></td><td>injection heuristics with rejection, size limits, strip invisible characters; PII masking for e-mail, phone, IBAN, cards, API keys and URL credentials</td></tr><tr><td><strong>Strict</strong></td><td>locked bindings: stricter threshold, reject invisible characters, canary token, reject cards and secrets, mask further PII, remove images to foreign domains, optional external content safety; payload logging at most masked</td></tr><tr><td><strong>Open</strong></td><td>generous size limits only; payload logging metadata only</td></tr></tbody></table></div>
+<p>Profiles are applied to a level via UI or admin API – with diff and dry run.</p>
+<h2 id="tools">Tools and MCP<a class="anchor" href="#tools" aria-label="Link to this section">#</a></h2>
+<p>Applications send the tools a model may call with every request. ai-gw inventories them, detects descriptions changed after the fact (“rug pull”), checks descriptions for injection signals and enforces <strong>tool policies</strong>: allow, strip, reject, observe or approval required – including tool calls in the response. MCP servers behind the gateway are invisible to everyone by default; grants apply per team and key down to individual tools. More: <a href="docs/tool-policies.html">Tool policies</a>, <a href="docs/mcp-gateway.html">MCP gateway</a>.</p>
+<h2 id="gateway">Security of the gateway<a class="anchor" href="#gateway" aria-label="Link to this section">#</a></h2>
+<ul><li><strong>Secrets:</strong> credentials encrypted (AES-256-GCM), master key never in the database, rotation via <code>aigw config rekey</code>. API keys only as hashes; logs never contain <code>Authorization</code> or key headers, and incoming tokens are never forwarded to providers.</li><li><strong>Outbound connections:</strong> a shared component with <strong>SSRF protection</strong> – the URL is checked on save and the target address on every connection after name resolution (against DNS rebinding), no redirects, size and time limits. Private targets only after an explicit, narrowly scoped approval by global admins.</li><li><strong>Listeners:</strong> maximum concurrent connections, read timeouts against Slowloris, HTTP/2 limits, body limits; running streams are unaffected.</li><li><strong>Admin access:</strong> OIDC with PKCE, session cookies with the <code>__Host-</code> prefix, <code>SameSite=Strict</code> and CSRF tokens, a role model with team boundaries, a one-time bootstrap token valid only until the first admin.</li><li><strong>Sandboxed plugins:</strong> WASM modules without file system, network or environment, with limits on CPU, time and memory and optional Ed25519 signature enforcement – see <a href="docs/wasm-plugins.html">WASM plugins</a>.</li><li><strong>Traceability:</strong> audit log with hash chain, verifiable via API, UI and <code>aigw audit verify</code>.</li><li><strong>Supply chain:</strong> <code>cargo deny</code> with license and advisory checks, pinned UI dependencies with a minimum age for new packages, a license overview of all dependencies.</li></ul>
+<p>The project has gone through an internal security review; the resulting operational recommendations are under <a href="docs/operations.html">Operations and hardening</a>. Please report vulnerabilities confidentially: <a href="contribute.html#security">Report a vulnerability</a>.</p></article></div></div>
+</main>
+<footer class="site-footer">
+  <div class="bar">
+    <div class="foot-brand"><svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><p><strong>ai-gw</strong> (AI-Gateway) – Open-source, self-hosted AI gateway in Rust – one endpoint for many AI providers. One binary for gateway, admin API and admin UI.</p></div>
+    <p>Documentation under <a href="https://creativecommons.org/licenses/by/4.0/deed.en" rel="license noopener">CC BY 4.0</a>, code under AGPL-3.0-or-later. No cookies, no tracking, no third-party resources.</p>
+    <nav aria-label="Legal and service"><p><a href="../en/contribute.html#license">License</a> · <a href="../en/contribute.html#security">Report a vulnerability</a> · <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">Source code</a> · <a href="../en/search.html">Search</a> · <a href="../en/legal-notice.html">Legal notice</a> · <a href="../en/privacy.html">Privacy policy</a></p></nav>
+  </div>
+</footer>
+<script src="../assets/site.js?v=462edbf839" defer></script>
+</body>
+</html>

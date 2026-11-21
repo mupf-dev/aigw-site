@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quickstart · ai-gw</title>
+<meta name="description" content="Start ai-gw with Docker, open the admin UI, connect a provider and send the first request – plus Docker Compose with Postgres and Redis, Kubernetes and running without containers.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-gw">
+<meta property="og:title" content="Quickstart · ai-gw">
+<meta property="og:description" content="Start ai-gw with Docker, open the admin UI, connect a provider and send the first request – plus Docker Compose with Postgres and Redis, Kubernetes and running without containers.">
+<meta property="og:image" content="https://mupf-dev.github.io/aigw-site/assets/img/ui/uebersicht-dunkel.webp">
+<meta property="og:locale" content="en_US">
+<meta name="theme-color" content="#0e1115">
+<link rel="canonical" href="../en/quickstart.html">
+<link rel="alternate" hreflang="de" href="../schnellstart.html">
+<link rel="alternate" hreflang="en" href="../en/quickstart.html">
+<link rel="alternate" hreflang="x-default" href="../schnellstart.html">
+<link rel="stylesheet" href="../assets/style.css?v=dd200eddc7">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body class="k-page">
+<a class="skip" href="#inhalt">Skip to content</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="../en/index.html" aria-label="ai-gw (AI-Gateway) – Home">
+      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><span class="brand-text"><span class="brand-name">ai-gw</span><span class="brand-sub">AI-Gateway · alpha</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnav">Menu</button>
+    <nav id="hauptnav" class="mainnav" aria-label="Main navigation"><ul><li><a href="../en/index.html">Home</a></li><li><a href="../en/features.html">Features</a></li><li><a href="../en/admin-ui.html">Admin UI</a></li><li><a href="../en/architecture.html">Architecture</a></li><li><a href="../en/security.html">Security</a></li><li><a href="../en/docs/index.html">Docs</a></li><li><a href="../en/quickstart.html" aria-current="page">Quickstart</a></li><li><a href="../en/roadmap.html">Roadmap</a></li><li><a href="../en/contribute.html">Contribute</a></li></ul></nav>
+    <div class="tools">
+      <form class="search" role="search" action="../en/search.html" method="get">
+        <label for="q" class="sr-only">Search</label>
+        <input id="q" name="q" type="search" placeholder="Search …" autocomplete="off">
+      </form>
+      <a class="lang-switch" href="../schnellstart.html" hreflang="de" lang="de" aria-label="Deutsche Fassung dieser Seite"><span aria-hidden="true">DE</span><span class="lang-long" aria-hidden="true">Deutsch</span></a>
+    </div>
+  </div>
+</header>
+<main id="inhalt" tabindex="-1">
+<header class="page-head"><div class="wrap"><p class="eyebrow">AI-Gateway</p><h1>Quickstart</h1><p class="lead">Start ai-gw with Docker, open the admin UI, connect a provider and send the first request – plus Docker Compose with Postgres and Redis, Kubernetes and running without containers.</p></div></header><div class="page with-toc"><nav class="toc" aria-label="Contents of this page"><p class="toc-title">On this page</p><ol><li><a href="#starten">1. Build and start the image</a></li><li><a href="#admin-ui">2. Open the admin UI</a></li><li><a href="#yaml">3. Or everything as YAML</a></li><li><a href="#request">4. First request</a></li><li><a href="#compose">Docker Compose with Postgres and Redis</a></li><li><a href="#kubernetes">Kubernetes</a></li><li><a href="#binary">Without containers</a></li><li><a href="#weiter">Next steps</a></li></ol></nav><div class="content"><article class="doc"><blockquote><p><strong>Pre-release.</strong> Ready-made container images will be published with the first release. Until then the image is built from the repository (Docker with BuildKit). Until 1.0, configuration, manifest format and admin API may change incompatibly – the <a href="https://github.com/mupf-dev/ai-gw/blob/main/CHANGELOG.md" rel="noopener">changelog</a> lists such changes.</p></blockquote>
+<h2 id="starten">1. Build and start the image<a class="anchor" href="#starten" aria-label="Link to this section">#</a></h2>
+<pre><span class="code-lang">sh</span><code class="lang-sh">git clone https://github.com/mupf-dev/ai-gw.git &amp;&amp; cd ai-gw
+docker build -t ai-gw:dev .                              # build the image (BuildKit)
+docker run --rm ai-gw:dev keygen &gt; aigw-master-key       # generate a master key
+docker volume create aigw-data
+docker run -d --name aigw --read-only --cap-drop ALL --security-opt no-new-privileges \
+  -p 127.0.0.1:4000:4000 -p 127.0.0.1:4001:4001 \
+  -e AIGW_MASTER_KEY="$(cat aigw-master-key)" \
+  -e AIGW_SECRET_OPENAI_API_KEY="sk-…" \
+  -v aigw-data:/data ai-gw:dev
+docker logs aigw 2&gt;&amp;1 | grep Bootstrap-Token             # one-time admin token</code></pre>
+<p>The image is distroless, runs as non-root with a read-only file system and includes a health check; it can be built for amd64 and arm64. The master key encrypts all stored credentials – keep it separate from database backups. A file mounted as a Docker or Kubernetes secret is better than the environment variable (<code>AIGW_SECRETS__MASTER_KEY_FILE</code>).</p>
+<p>Port 4000 is the <strong>data plane</strong> for applications, port 4001 the <strong>control plane</strong> with admin UI, admin API and metrics. Both are bound to <code>127.0.0.1</code> here.</p>
+<h2 id="admin-ui">2. Open the admin UI<a class="anchor" href="#admin-ui" aria-label="Link to this section">#</a></h2>
+<p>Open <code>http://localhost:4001/admin/</code> with the bootstrap token. The token expires automatically as soon as a global admin has signed in via OIDC or an admin API key with role <code>admin</code> exists. In the UI, create in turn:</p>
+<ol><li>an <strong>organization</strong> (and teams if needed),</li><li><strong>credentials</strong> for a provider – in the example a reference to the environment variable <code>AIGW_SECRET_OPENAI_API_KEY</code>, never the plaintext in a manifest,</li><li>a <strong>model group</strong> with a <strong>deployment</strong>,</li><li>an <strong>API key</strong> for the application.</li></ol>
+<h2 id="yaml">3. Or everything as YAML<a class="anchor" href="#yaml" aria-label="Link to this section">#</a></h2>
+<p>The same resources can be applied as manifests – in the UI under “YAML import/export”, via the admin API or with <code>aigw config apply</code>. The example <code>config/examples/minimal/resources.yaml</code> from the repository:</p>
+<pre><span class="code-lang">yaml</span><code class="lang-yaml">apiVersion: aigw/v1alpha1
+kind: Organization
+metadata: {name: default}
+spec:
+  displayName: Standard
+---
+apiVersion: aigw/v1alpha1
+kind: ProviderCredential
+metadata: {name: openai}
+spec:
+  provider: openai
+  data:
+    apiKey:
+      valueFrom: {env: AIGW_SECRET_OPENAI_API_KEY}
+---
+apiVersion: aigw/v1alpha1
+kind: ModelGroup
+metadata: {name: gpt-4o-mini}
+spec: {}
+---
+apiVersion: aigw/v1alpha1
+kind: Deployment
+metadata: {name: gpt-4o-mini-openai}
+spec:
+  modelGroup: gpt-4o-mini
+  provider: openai
+  providerModel: gpt-4o-mini
+  credential: openai</code></pre>
+<pre><span class="code-lang">sh</span><code class="lang-sh">curl -s localhost:4001/admin/api/v1/config:apply -H "authorization: Bearer &lt;bootstrap-token&gt;" \
+  -H 'content-type: application/yaml' --data-binary @config/examples/minimal/resources.yaml</code></pre>
+<p>More examples in the repository under <code>config/examples/</code>: providers, teams and budgets, guardrails, cache, MCP, GitOps and a setup with Postgres and Redis.</p>
+<h2 id="request">4. First request<a class="anchor" href="#request" aria-label="Link to this section">#</a></h2>
+<p>Create an API key in the UI (the plaintext is shown only once) and use it with any OpenAI-compatible client:</p>
+<pre><span class="code-lang">sh</span><code class="lang-sh">curl -s localhost:4000/v1/chat/completions -H "authorization: Bearer sk-aigw-…" \
+  -H 'content-type: application/json' \
+  -d '{"model":"gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}'</code></pre>
+<p>In SDKs it is enough to set the base URL to <code>http://localhost:4000/v1</code> and the key to the virtual key. Anthropic clients use <code>POST /v1/messages</code> with the key in the <code>x-api-key</code> header. The request shows up in the log explorer right away – with tokens, cost and latency.</p>
+<h2 id="compose">Docker Compose with Postgres and Redis<a class="anchor" href="#compose" aria-label="Link to this section">#</a></h2>
+<p>For multiple instances or higher load, <code>deploy/compose/</code> contains a setup with Postgres 17, Redis 7 and optionally an OpenTelemetry collector:</p>
+<pre><span class="code-lang">sh</span><code class="lang-sh">cd deploy/compose
+cp env.example .env &amp;&amp; $EDITOR .env                      # set POSTGRES_PASSWORD
+mkdir -p secrets
+docker run --rm ai-gw:dev keygen &gt; secrets/aigw-master-key
+sudo chown 65532:65532 secrets/aigw-master-key &amp;&amp; sudo chmod 0400 secrets/aigw-master-key
+docker compose up -d
+docker compose ps                                        # aigw: healthy</code></pre>
+<h2 id="kubernetes">Kubernetes<a class="anchor" href="#kubernetes" aria-label="Link to this section">#</a></h2>
+<p><code>deploy/kubernetes/</code> contains a kustomize baseline: a ConfigMap with the startup configuration, a Deployment with two replicas (non-root, read-only file system), services for data and control plane, probes on <code>/healthz</code> and <code>/readyz</code> and a PodDisruptionBudget. Mount the master key as a secret and expose the control plane internally only.</p>
+<h2 id="binary">Without containers<a class="anchor" href="#binary" aria-label="Link to this section">#</a></h2>
+<p>ai-gw is a single binary. It is built with the Rust toolchain pinned in the repository (build the admin UI with pnpm first); after that <code>aigw keygen</code>, <code>aigw config check</code> and <code>aigw serve</code> are all you need, ideally as a systemd service with a generous file-descriptor limit.</p>
+<h2 id="weiter">Next steps<a class="anchor" href="#weiter" aria-label="Link to this section">#</a></h2>
+<ul><li>Set up <strong>sign-in via OIDC</strong> (Microsoft Entra ID, Keycloak or another IdP) and bind roles to IdP groups.</li><li>Apply the <strong>“basic” guardrail profile</strong> globally or per team: <a href="security.html">Guardrails &amp; security</a>.</li><li>Set <strong>limits and budgets</strong> per team and review prices.</li><li>Connect <strong>monitoring</strong> via <code>/metrics</code> and OpenTelemetry.</li><li><strong>Harden</strong> the setup following <a href="docs/operations.html">Operations and hardening</a>.</li></ul></article></div></div>
+</main>
+<footer class="site-footer">
+  <div class="bar">
+    <div class="foot-brand"><svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><p><strong>ai-gw</strong> (AI-Gateway) – Open-source, self-hosted AI gateway in Rust – one endpoint for many AI providers. One binary for gateway, admin API and admin UI.</p></div>
+    <p>Documentation under <a href="https://creativecommons.org/licenses/by/4.0/deed.en" rel="license noopener">CC BY 4.0</a>, code under AGPL-3.0-or-later. No cookies, no tracking, no third-party resources.</p>
+    <nav aria-label="Legal and service"><p><a href="../en/contribute.html#license">License</a> · <a href="../en/contribute.html#security">Report a vulnerability</a> · <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">Source code</a> · <a href="../en/search.html">Search</a> · <a href="../en/legal-notice.html">Legal notice</a> · <a href="../en/privacy.html">Privacy policy</a></p></nav>
+  </div>
+</footer>
+<script src="../assets/site.js?v=462edbf839" defer></script>
+</body>
+</html>

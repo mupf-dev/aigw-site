@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Features · ai-gw</title>
+<meta name="description" content="What ai-gw does today – endpoints and providers, routing, tenants and costs, guardrails, cache, MCP gateway, agent identities, observability, GitOps and operations.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-gw">
+<meta property="og:title" content="Features · ai-gw">
+<meta property="og:description" content="What ai-gw does today – endpoints and providers, routing, tenants and costs, guardrails, cache, MCP gateway, agent identities, observability, GitOps and operations.">
+<meta property="og:image" content="https://mupf-dev.github.io/aigw-site/assets/img/ui/uebersicht-dunkel.webp">
+<meta property="og:locale" content="en_US">
+<meta name="theme-color" content="#0e1115">
+<link rel="canonical" href="../en/features.html">
+<link rel="alternate" hreflang="de" href="../funktionen.html">
+<link rel="alternate" hreflang="en" href="../en/features.html">
+<link rel="alternate" hreflang="x-default" href="../funktionen.html">
+<link rel="stylesheet" href="../assets/style.css?v=dd200eddc7">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body class="k-page">
+<a class="skip" href="#inhalt">Skip to content</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="../en/index.html" aria-label="ai-gw (AI-Gateway) – Home">
+      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><span class="brand-text"><span class="brand-name">ai-gw</span><span class="brand-sub">AI-Gateway · alpha</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="hauptnav">Menu</button>
+    <nav id="hauptnav" class="mainnav" aria-label="Main navigation"><ul><li><a href="../en/index.html">Home</a></li><li><a href="../en/features.html" aria-current="page">Features</a></li><li><a href="../en/admin-ui.html">Admin UI</a></li><li><a href="../en/architecture.html">Architecture</a></li><li><a href="../en/security.html">Security</a></li><li><a href="../en/docs/index.html">Docs</a></li><li><a href="../en/quickstart.html">Quickstart</a></li><li><a href="../en/roadmap.html">Roadmap</a></li><li><a href="../en/contribute.html">Contribute</a></li></ul></nav>
+    <div class="tools">
+      <form class="search" role="search" action="../en/search.html" method="get">
+        <label for="q" class="sr-only">Search</label>
+        <input id="q" name="q" type="search" placeholder="Search …" autocomplete="off">
+      </form>
+      <a class="lang-switch" href="../funktionen.html" hreflang="de" lang="de" aria-label="Deutsche Fassung dieser Seite"><span aria-hidden="true">DE</span><span class="lang-long" aria-hidden="true">Deutsch</span></a>
+    </div>
+  </div>
+</header>
+<main id="inhalt" tabindex="-1">
+<header class="page-head"><div class="wrap"><p class="eyebrow">AI-Gateway</p><h1>Features</h1><p class="lead">What ai-gw does today – endpoints and providers, routing, tenants and costs, guardrails, cache, MCP gateway, agent identities, observability, GitOps and operations.</p></div></header><div class="page with-toc"><nav class="toc" aria-label="Contents of this page"><p class="toc-title">On this page</p><ol><li><a href="#endpunkte">Endpoints and formats</a></li><li><a href="#anbieter">Providers</a></li><li><a href="#routing">Routing and resilience</a></li><li><a href="#mandanten">Tenants, limits and costs</a></li><li><a href="#guardrails">Guardrails and plugins</a></li><li><a href="#cache">Response cache</a></li><li><a href="#mcp">MCP gateway and tools</a></li><li><a href="#identitaeten">Agent and workload identities</a></li><li><a href="#beobachtung">Observability</a></li><li><a href="#administration">Administration and GitOps</a></li><li><a href="#betrieb">Operations</a></li></ol></nav><div class="content"><article class="doc"><p>ai-gw is an independent AI gateway modeled on well-known products such as LiteLLM, Kong AI Gateway and Azure AI Gateway (API Management). The focus is a lean, fast hot path and a modern web administration. Everything runs in <strong>one binary</strong>: the data plane (default port 4000) and the control plane with admin API, admin UI and metrics (default port 4001).</p>
+<h2 id="endpunkte">Endpoints and formats<a class="anchor" href="#endpunkte" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Endpoint</th><th scope="col">Purpose</th></tr></thead><tbody><tr><td><code>POST /v1/chat/completions</code></td><td>OpenAI-compatible chat, with SSE streaming, tools and vision</td></tr><tr><td><code>POST /v1/messages</code></td><td>Anthropic Messages API</td></tr><tr><td><code>POST /v1/responses</code></td><td>OpenAI Responses (stateless)</td></tr><tr><td><code>POST /v1/embeddings</code></td><td>embeddings</td></tr><tr><td><code>POST /v1/images/generations</code>, <code>/v1/audio/*</code></td><td>images, transcription, translation, speech</td></tr><tr><td><code>GET /v1/models</code></td><td>model groups the key may use</td></tr><tr><td><code>/mcp</code>, <code>/mcp/{server}</code></td><td>MCP gateway (Streamable HTTP)</td></tr><tr><td><code>GET /healthz</code>, <code>GET /readyz</code></td><td>liveness and readiness (including a “degraded” state)</td></tr></tbody></table></div>
+<p>Every request is translated into a shared intermediate representation and from there into the provider's format – including tools and function calling, images, streaming events and usage. An OpenAI client can therefore use a Claude model and vice versa; errors come back in the format of the incoming request.</p>
+<h2 id="anbieter">Providers<a class="anchor" href="#anbieter" aria-label="Link to this section">#</a></h2>
+<p>OpenAI, Azure OpenAI (API key or Microsoft Entra ID with client secret, certificate, workload identity or managed identity, including sovereign clouds), Claude in Azure AI Foundry, Anthropic, AWS Bedrock (SigV4 or API key), Google Gemini API and Vertex AI (service account), Mistral, Ollama, vLLM, generic OpenAI-compatible endpoints and a built-in mock provider for tests. A provider overview in the UI shows health and traffic share per provider.</p>
+<h2 id="routing">Routing and resilience<a class="anchor" href="#routing" aria-label="Link to this section">#</a></h2>
+<ul><li><strong>Model groups</strong> with a public name and aliases (e.g. <code>gpt-4o</code>, <code>openai/gpt-4o</code>) and any number of <strong>deployments</strong> behind them: provider, endpoint, provider model, credentials, weight, priority, own capacity in RPM and TPM.</li><li><strong>Strategies:</strong> weighted, least latency, least busy, lowest cost.</li><li><strong>Priority groups:</strong> for example reserved capacity (PTU) before pay-as-you-go.</li><li><strong>Retries</strong> only before the first byte reaches the client, with exponential backoff and respect for <code>Retry-After</code>; <strong>fallback chains</strong> across model groups, optionally only for certain error classes; <strong>circuit breakers</strong> per deployment, health checks and separate timeouts for connect, first byte, gaps between chunks and total time.</li></ul>
+<h2 id="mandanten">Tenants, limits and costs<a class="anchor" href="#mandanten" aria-label="Link to this section">#</a></h2>
+<ul><li>Organizations, teams and users; <strong>virtual API keys</strong> with model access, expiry, rotation, suspension and revocation. Keys are stored only as hashes; the plaintext is shown exactly once.</li><li><strong>Limits</strong> for requests, tokens and concurrent requests per key, team, organization and model group – in sliding windows or calendar periods, with <code>429</code>, <code>Retry-After</code> and <code>x-ratelimit-*</code> headers. Counters are local, synchronized via Postgres or exact via Redis.</li><li><strong>Costs and budgets:</strong> price table per model and period (with price suggestions), cost per request, strict budgets with reservation or soft budgets, alerts via webhook.</li><li><strong>Team boundaries:</strong> team admins manage keys and budgets within their team's limits.</li></ul>
+<h2 id="guardrails">Guardrails and plugins<a class="anchor" href="#guardrails" aria-label="Link to this section">#</a></h2>
+<p>A <strong>plugin chain</strong> runs per request, response and stream chunk and is bound at the global, organization, team, key and model-group level – with inheritance, ordering, locking against overrides and a defined failure behavior. Built-ins include <code>pii</code>, <code>prompt-filter</code>, <code>prompt-leak</code>, <code>content-safety</code>, <code>link-guard</code>, <code>language</code>, <code>header</code>, <code>request-transform</code>, <code>webhook</code> and <code>cache</code>. Custom logic can run as a signed <a href="docs/wasm-plugins.html">WASM plugin</a> in a sandbox.</p>
+<p>Three <strong>guardrail profiles</strong> (basic, strict, open) serve as a starting point and show a diff before they are applied. Details: <a href="security.html">Guardrails &amp; security</a>.</p>
+<h2 id="cache">Response cache<a class="anchor" href="#cache" aria-label="Link to this section">#</a></h2>
+<ul><li><strong>Exact:</strong> key over model group and normalized request, in memory (LRU with a size limit) or additionally in Redis; streamed responses are replayed as a stream.</li><li><strong>Semantic:</strong> embedding of the last user message, the system prompt as a hard filter; the index is a built-in in-memory HNSW index, pgvector or Redis Search.</li><li>Always partitioned per team (or narrower), never across tenants. The <code>x-aigw-cache</code> header shows hit or miss.</li></ul>
+<h2 id="mcp">MCP gateway and tools<a class="anchor" href="#mcp" aria-label="Link to this section">#</a></h2>
+<p>ai-gw is an MCP server for clients and an MCP client for connected MCP servers. Through one endpoint, clients see all tools, prompts and resources granted to their key; grants apply per team and key down to individual tools. In addition, ai-gw keeps an <strong>inventory of all tools</strong> that applications send in their requests, detects changed descriptions and enforces <strong>tool policies</strong>. More: <a href="docs/mcp-gateway.html">MCP gateway</a>, <a href="docs/tool-policies.html">Tool inventory and tool policies</a>.</p>
+<h2 id="identitaeten">Agent and workload identities<a class="anchor" href="#identitaeten" aria-label="Link to this section">#</a></h2>
+<p>Besides API keys, ai-gw accepts signed access tokens (JWT) from trusted issuers – above all from <strong>Microsoft Entra Agent ID</strong>, but also from other OAuth 2.0 issuers. A token acts exactly like the key its identity is mapped to. More: <a href="docs/workload-identities.html">Workload and agent identities</a>.</p>
+<h2 id="beobachtung">Observability<a class="anchor" href="#beobachtung" aria-label="Link to this section">#</a></h2>
+<ul><li><strong>Request log</strong> with model, deployment, tokens, cost, latency, cache status and fallback attempts; content only if configured, and then masked. Per-minute rollups for the dashboards, retention periods for raw data.</li><li><strong>Prometheus</strong> at <code>/metrics</code>, <strong>OpenTelemetry</strong> traces and logs (OTLP/HTTP) with spans for authentication, plugins, upstream and time to first token, export as JSON Lines and webhook.</li><li><strong>Audit log</strong> of every admin change with before/after and a hash chain, verifiable via API and UI.</li></ul>
+<h2 id="administration">Administration and GitOps<a class="anchor" href="#administration" aria-label="Link to this section">#</a></h2>
+<ul><li><strong>Admin API</strong> with an OpenAPI specification, ETag/If-Match, cursor pagination and RFC 9457 errors; the UI's types are generated from it.</li><li><strong>Admin UI</strong> (Svelte 5, embedded): resource editors, analytics, log explorer, playground, command palette, YAML import/export. See <a href="admin-ui.html">The admin UI</a>.</li><li><strong>Sign-in</strong> via OIDC (generic or Microsoft Entra ID), roles <code>admin</code>, <code>org-admin</code>, <code>team-admin</code>, <code>viewer</code>, <code>auditor</code>, <code>gitops</code>; admin API keys for automation, a one-time bootstrap token for the initial setup.</li><li><strong>GitOps:</strong> <code>aigw config export | diff | apply | validate</code>, dry run and prune, a “YAML only” mode. Secrets appear in YAML only as references to environment variables or files.</li></ul>
+<h2 id="betrieb">Operations<a class="anchor" href="#betrieb" aria-label="Link to this section">#</a></h2>
+<ul><li><strong>Storage:</strong> SQLite by default, Postgres for multiple instances (changes via LISTEN/NOTIFY), an encrypted snapshot cache for starting without a database.</li><li><strong>Container image</strong> distroless, non-root, with a read-only file system and health check, for amd64 and arm64; Docker Compose examples with Postgres, Redis and an OpenTelemetry collector, a Kubernetes baseline, an operations handbook and validated example configurations.</li><li><strong>Tools:</strong> <code>aigw keygen</code>, <code>aigw config check</code>, <code>aigw config rekey</code> (master key rotation), <code>aigw audit verify</code>, <code>aigw healthcheck</code>.</li></ul>
+<p>Get started: <a href="quickstart.html">Quickstart</a> · Background: <a href="architecture.html">Architecture</a>.</p></article></div></div>
+</main>
+<footer class="site-footer">
+  <div class="bar">
+    <div class="foot-brand"><svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="6" class="logo-bg"/><path d="M9.5 25V15a6.5 6.5 0 0 1 13 0v10" class="logo-cloud" stroke-linecap="round"/><path d="M4 11h4M4 16h4M24 16h4M24 11h4" class="logo-wire" stroke-linecap="round"/><g class="logo-dots"><circle cx="16" cy="17" r="2.2"/></g></svg><p><strong>ai-gw</strong> (AI-Gateway) – Open-source, self-hosted AI gateway in Rust – one endpoint for many AI providers. One binary for gateway, admin API and admin UI.</p></div>
+    <p>Documentation under <a href="https://creativecommons.org/licenses/by/4.0/deed.en" rel="license noopener">CC BY 4.0</a>, code under AGPL-3.0-or-later. No cookies, no tracking, no third-party resources.</p>
+    <nav aria-label="Legal and service"><p><a href="../en/contribute.html#license">License</a> · <a href="../en/contribute.html#security">Report a vulnerability</a> · <a href="https://github.com/mupf-dev/ai-gw" rel="noopener">Source code</a> · <a href="../en/search.html">Search</a> · <a href="../en/legal-notice.html">Legal notice</a> · <a href="../en/privacy.html">Privacy policy</a></p></nav>
+  </div>
+</footer>
+<script src="../assets/site.js?v=462edbf839" defer></script>
+</body>
+</html>
