@@ -1,0 +1,29 @@
+/* SPDX-FileCopyrightText: 2026 site-kit contributors
+   SPDX-License-Identifier: AGPL-3.0-or-later
+   Akzent ai-gw: Violett wie die Admin-UI von ai-gw. Prüfen: python3 tools/contrast.py */
+:root {
+  --accent: #5b3fc4;
+  --accent-hover: #4a31a8;
+  --on-accent: #ffffff;
+  --accent-text: #5236b8;
+  --accent-soft: #ece8fb;
+  --accent-soft-fg: #46309e;
+  --focus: #5b3fc4;
+  --h-accent: #a28bff;
+  --h-accent-text: #bcaaff;
+  --h-on-accent: #170a3a;
+  --h-soft: #221a3d;
+  --h-soft-fg: #cfc2ff;
+  --h-glow: 162 139 255;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent: #a28bff;
+    --accent-hover: #bcaaff;
+    --on-accent: #170a3a;
+    --accent-text: #bcaaff;
+    --accent-soft: #221a3d;
+    --accent-soft-fg: #cfc2ff;
+    --focus: #bcaaff;
+  }
+}
