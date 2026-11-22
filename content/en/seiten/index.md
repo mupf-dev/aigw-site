@@ -1,5 +1,5 @@
 title: Home
-summary: ai-gw – open-source, self-hosted AI gateway in Rust. One OpenAI- and Anthropic-compatible endpoint in front of many AI providers, with routing, multi-tenancy, budgets, guardrails, MCP gateway and admin UI in a single binary.
+summary: ai-gw – source-available, self-hosted AI gateway in Rust. One OpenAI- and Anthropic-compatible endpoint in front of many AI providers, with routing, multi-tenancy, budgets, guardrails, MCP gateway and admin UI in a single binary.
 hero: ja
 de: index
 ---
@@ -7,7 +7,7 @@ de: index
 <section class="hero" aria-labelledby="hero-titel">
   <div class="wrap hero-grid">
     <div>
-      <p class="eyebrow">Open source · Rust · AGPL-3.0 · Pre-release</p>
+      <p class="eyebrow">Source available · Rust · FSL-1.1 · Pre-release</p>
       <h1 id="hero-titel">One endpoint.<br><span class="hl">Every model.</span></h1>
       <p class="lead"><strong>ai-gw</strong> is a self-hosted AI gateway: applications and agents speak an OpenAI- or Anthropic-compatible API, and ai-gw routes the requests to OpenAI, Azure OpenAI, Anthropic, AWS Bedrock, Gemini, Mistral, Ollama, vLLM and more – with keys per team, limits, budgets, guardrails and a complete request log. Gateway, admin API and admin UI ship as one binary.</p>
       <div class="buttons">

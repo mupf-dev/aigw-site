@@ -6,7 +6,7 @@ hero: ja
 <section class="hero" aria-labelledby="hero-titel">
   <div class="wrap hero-grid">
     <div>
-      <p class="eyebrow">Open Source · Rust · AGPL-3.0 · Vorabversion</p>
+      <p class="eyebrow">Source Available · Rust · FSL-1.1 · Vorabversion</p>
       <h1 id="hero-titel">Ein Endpunkt.<br><span class="hl">Alle Modelle.</span></h1>
       <p class="lead"><strong>ai-gw</strong> ist ein selbst gehostetes AI-Gateway: Anwendungen und Agenten sprechen eine OpenAI- oder Anthropic-kompatible API, ai-gw verteilt die Anfragen auf OpenAI, Azure OpenAI, Anthropic, AWS Bedrock, Gemini, Mistral, Ollama, vLLM und weitere – mit Schlüsseln je Team, Limits, Budgets, Guardrails und vollständigem Log. Gateway, Admin-API und Admin-UI stecken in einem Binary.</p>
       <div class="buttons">

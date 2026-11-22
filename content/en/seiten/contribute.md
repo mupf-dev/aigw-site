@@ -46,15 +46,19 @@ scripts/runtime-smoke.sh      # build, start and check the release binary with U
 
 | Component | License |
 |---|---|
-| Code: gateway, admin API, admin UI, plugins, tools | GNU AGPL-3.0-or-later |
+| Code: gateway, admin API, admin UI, tools | FSL-1.1-ALv2 (Functional Source License) |
+| Plugin interface (WIT) and example plugins | Apache-2.0 |
 | Documentation: `docs/`, README, CHANGELOG | CC BY 4.0 |
 | This website: content | CC BY 4.0 |
 | This website: generator, check script, stylesheet, script | GNU AGPL-3.0-or-later |
 
-The AGPL ensures that improvements benefit the community even when modified versions are offered
-as a network service – the typical case for a gateway. The repository is REUSE compliant; the
-licenses of dependencies are listed in `THIRD-PARTY.md` and checked against an allowlist with
-`cargo deny`. Attribution: “ai-gw contributors”.
+The [Functional Source License](https://fsl.software/) permits any use – including commercial use,
+inside your own company and with modifications – except for a competing commercial product or
+service. Two years after its release, each version automatically becomes available under
+Apache-2.0 as well. Commercial licenses for other uses are available from the copyright holder (see `LICENSE`
+in the repository). Versions up to 21 November 2026 are licensed under AGPL-3.0-or-later.
+The repository is REUSE compliant; the licenses of dependencies are listed in `THIRD-PARTY.md` and
+checked against an allowlist with `cargo deny`.
 
 ## Report a vulnerability {#security}
 
