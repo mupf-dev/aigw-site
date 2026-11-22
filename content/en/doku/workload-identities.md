@@ -51,12 +51,12 @@ OpenID discovery.
 Instead of a new resource kind, ai-gw extends the **virtual key**: a key carries a list
 of identities made up of issuer and identifier (by default the app ID of the agent identity). A
 token with a matching combination acts **exactly like this key** – model grants, limits,
-budgets, team and organisation, guardrail bindings, tool policies, MCP grants,
+budgets, team and organization, guardrail bindings, tool policies, MCP grants,
 payload policy and attribution in the request log apply without special logic.
 
 - Each identity belongs to at most **one** active key; the admin API and GitOps check this.
 - Unknown identities are rejected (`403`) – there is **no automatic provisioning**. The
-  Microsoft documentation explicitly advises against authorising solely on the basis of an agent claim.
+  Microsoft documentation explicitly advises against authorizing solely on the basis of an agent claim.
 - A key can carry several identities, such as all instances of an agent; they then share
   limits and budgets.
 - Blocked or expired keys also block token sign-in; when a key is rotated,

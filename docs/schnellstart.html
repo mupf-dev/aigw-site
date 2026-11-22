@@ -105,7 +105,7 @@ sudo chown 65532:65532 secrets/aigw-master-key &amp;&amp; sudo chmod 0400 secret
 docker compose up -d
 docker compose ps                                        # aigw: healthy</code></pre>
 <h2 id="kubernetes">Kubernetes<a class="anchor" href="#kubernetes" aria-label="Link zu diesem Abschnitt">#</a></h2>
-<p><code>deploy/kubernetes/</code> enthält ein kustomize-Grundgerüst: ConfigMap mit der Startkonfiguration, Deployment mit zwei Replikaten (nicht-root, schreibgeschütztes Dateisystem), Services für Daten- und Steuerebene , Probes auf <code>/healthz</code> und <code>/readyz</code> sowie ein PodDisruptionBudget. Den Master-Key als Secret einbinden, die Steuerebene nur intern veröffentlichen.</p>
+<p><code>deploy/kubernetes/</code> enthält ein kustomize-Grundgerüst: ConfigMap mit der Startkonfiguration, Deployment mit zwei Replikaten (nicht-root, schreibgeschütztes Dateisystem), Services für Daten- und Steuerebene, Probes auf <code>/healthz</code> und <code>/readyz</code> sowie ein PodDisruptionBudget. Den Master-Key als Secret einbinden, die Steuerebene nur intern veröffentlichen.</p>
 <h2 id="binary">Ohne Container<a class="anchor" href="#binary" aria-label="Link zu diesem Abschnitt">#</a></h2>
 <p>ai-gw ist ein einzelnes Binary. Gebaut wird es mit der Rust-Toolchain aus dem Repository (die Admin-UI vorher mit pnpm); danach genügen <code>aigw keygen</code>, <code>aigw config check</code> und <code>aigw serve</code>, gern als systemd-Dienst mit großzügigem Limit für Dateideskriptoren.</p>
 <h2 id="weiter">Nächste Schritte<a class="anchor" href="#weiter" aria-label="Link zu diesem Abschnitt">#</a></h2>

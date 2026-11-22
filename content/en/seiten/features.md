@@ -1,5 +1,5 @@
 title: Features
-summary: What ai-gw does today – endpoints and providers, routing, tenants and costs, guardrails, cache, MCP gateway, agent identities, observability, GitOps and operations.
+summary: What ai-gw does today – endpoints and providers, routing, tenants and cost analysis, guardrails, cache, MCP gateway, agent identities, observability, GitOps and operations.
 toc: ja
 de: funktionen
 ---
@@ -32,7 +32,8 @@ OpenAI, Azure OpenAI (API key or Microsoft Entra ID with client secret, certific
 identity or managed identity, including sovereign clouds), Claude in Azure AI Foundry, Anthropic,
 AWS Bedrock (SigV4 or API key), Google Gemini API and Vertex AI (service account), Mistral,
 Ollama, vLLM, generic OpenAI-compatible endpoints and a built-in mock provider for tests. A
-provider overview in the UI shows health and traffic share per provider.
+provider overview in the UI shows the authentication method, deployments and health (circuit
+breakers, health checks) per provider and endpoint; the overview page also shows the traffic share.
 
 ## Routing and resilience {#routing}
 
@@ -55,6 +56,11 @@ provider overview in the UI shows health and traffic share per provider.
   headers. Counters are local, synchronized via Postgres or exact via Redis.
 - **Costs and budgets:** price table per model and period (with price suggestions), cost per
   request, strict budgets with reservation or soft budgets, alerts via webhook.
+- **Cost analysis (FinOps):** a dedicated “Costs” page in the admin UI with trends per team,
+  organization, model group, deployment, provider or key, comparison with the previous period,
+  cost per request and per 1,000 tokens, a breakdown into input, cache and output, savings from
+  caching, plugin costs, a budget forecast to the end of the period and a chargeback export as CSV
+  or JSON (with cost center) – also via the admin API.
 - **Team boundaries:** team admins manage keys and budgets within their team's limits.
 
 ## Guardrails and plugins {#guardrails}
@@ -62,8 +68,8 @@ provider overview in the UI shows health and traffic share per provider.
 A **plugin chain** runs per request, response and stream chunk and is bound at the global,
 organization, team, key and model-group level – with inheritance, ordering, locking against
 overrides and a defined failure behavior. Built-ins include `pii`, `prompt-filter`,
-`prompt-leak`, `content-safety`, `link-guard`, `language`, `header`, `request-transform`,
-`webhook` and `cache`. Custom logic can run as a signed [WASM plugin](docs/wasm-plugins.html) in a
+`prompt-leak`, `content-safety`, `link-guard`, `language`, `schema-guard` (validates structured
+output against its JSON schema), `header`, `request-transform`, `webhook` and `cache`. Custom logic can run as a signed [WASM plugin](docs/wasm-plugins.html) in a
 sandbox.
 
 Three **guardrail profiles** (basic, strict, open) serve as a starting point and show a diff

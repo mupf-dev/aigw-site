@@ -1,5 +1,5 @@
 title: Guardrails & Sicherheit
-summary: Wie ai-gw Prompts und Antworten prüft – PII, Prompt-Injection, System-Prompt-Lecks, Datenabfluss über Links, Sprachen, externe Inhaltsprüfung – und welche Schutzmaßnahmen im Gateway selbst greifen.
+summary: Wie ai-gw Prompts und Antworten prüft – PII, Prompt-Injection, System-Prompt-Lecks, Datenabfluss über Links, Sprachen, strukturierte Ausgaben, externe Inhaltsprüfung – und welche Schutzmaßnahmen im Gateway selbst greifen.
 toc: ja
 ---
 Ein AI-Gateway sieht jede Anfrage und jede Antwort. Das macht es zum richtigen Ort für
@@ -19,8 +19,9 @@ Dienste auf dem bereits maskierten Text.
 | `prompt-filter` | Anfrage, wahlweise Antwort und Stream | Wort- und Phrasenlisten, Regex-Regeln, Prompt-Injection-Heuristik, Grenzen für Länge und Anzahl, unsichtbare Unicode-Zeichen |
 | `pii` | Anfrage, Antwort, Stream | personenbezogene Daten und Geheimnisse erkennen; maskieren, entfernen, ablehnen, pseudonymisieren (mit Rückübersetzung) oder zählen |
 | `prompt-leak` | Anfrage, Antwort, Stream | Lecks des System-Prompts über ein Canary-Token, optional wörtliche Auszüge |
-| `link-guard` | Antwort, Stream | Datenabfluss über Links und Bilder zu fremden Domains verhindern |
+| `link-guard` | Antwort, Stream, optional Anfrage | Datenabfluss über Links und Bilder zu fremden Domains verhindern |
 | `language` | Anfrage, wahlweise Antwort | erlaubte bzw. gesperrte Sprachen |
+| `schema-guard` | Antwort, Stream | strukturierte Ausgaben (JSON-Schema, JSON-Modus, erzwungene Tools) gegen ihr Schema prüfen |
 | `content-safety` | Anfrage, Antwort, Stream | externe Prüfung über Azure AI Content Safety, OpenAI Moderation oder ein eigenes Prüfmodell |
 
 Abgelehnte Antworten kommen im Format des Clients zurück (z. B. `finish_reason: content_filter`
@@ -69,6 +70,19 @@ Modell dazu bringen, vertrauliche Daten in eine Bild-URL zu schreiben. Der Chat-
 Bild beim Anzeigen ohne Klick, und die Daten landen beim Angreifer. `link-guard` entfernt Bilder
 zu fremden Domains und kann Links, Query-Parameter oder lange Pfade entschärfen; erlaubte Domains
 werden ausdrücklich konfiguriert.
+
+## Sprachen und strukturierte Ausgaben {#language}
+
+`language` lässt nur erlaubte Sprachen zu oder sperrt einzelne (ISO 639-1) – auf der Eingabe, auf
+Wunsch auch auf der Ausgabe. Erkannt wird lokal ohne externen Dienst; zu kurze oder unsichere
+Texte lassen sich über Mindestlänge und Mindestkonfidenz ausnehmen.
+
+`schema-guard` prüft Antworten, für die der Client ein JSON-Schema verlangt hat (OpenAI
+`response_format`, Anthropic `output_config.format`), JSON-Modus-Antworten auf gültiges JSON und
+die Argumente erzwungener Tool-Aufrufe gegen deren Parameterschema. Bei einem Verstoß wird die
+Antwort markiert, abgelehnt oder bis zu dreimal neu angefordert; Wiederholungen werden als
+Plugin-Kosten abgerechnet. Schemas sind in Größe und Tiefe begrenzt und werden ohne Netz- oder
+Dateizugriff ausgewertet.
 
 ## Externe Inhaltsprüfung {#content-safety}
 

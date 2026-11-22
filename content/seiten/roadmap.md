@@ -8,10 +8,11 @@ ai-gw ist seit November 2026 öffentlich. Der geplante Funktionsumfang der erste
 ist **umgesetzt und getestet**: Datenebene mit OpenAI- und Anthropic-Eingang, alle genannten
 Anbieter, Routing und Resilienz, Mandanten, Limits und Budgets, Plugin-Kette mit Guardrails,
 Antwort-Cache, MCP-Gateway, Admin-API und Admin-UI, GitOps, Beobachtung, SQLite und Postgres,
-Container-Image für amd64 und arm64. Seitdem sind unter anderem WASM-Plugins mit Signaturen,
-Tool-Inventar und Tool-Richtlinien, weitere Guardrails (`prompt-leak`, `link-guard`, `language`,
-unsichtbare Zeichen), Guardrail-Profile, Microsoft Entra ID an vielen Stellen und
-Workload-/Agent-Identitäten hinzugekommen. Das vollständige
+Container-Image. Seitdem sind unter anderem WASM-Plugins mit Signaturen, Tool-Inventar und
+Tool-Richtlinien, weitere Guardrails (`prompt-leak`, `link-guard`, `language`, `schema-guard`,
+unsichtbare Zeichen), Guardrail-Profile, Microsoft Entra ID an vielen Stellen,
+Workload-/Agent-Identitäten (Microsoft Entra Agent ID), die Kostenanalyse mit Budget-Prognose und
+Chargeback-Export sowie das Container-Image für arm64 hinzugekommen. Das vollständige
 [Changelog](https://github.com/mupf-dev/ai-gw/blob/main/CHANGELOG.md) steht im Repository.
 
 > **Noch kein Release.** Es gibt noch keine veröffentlichte Version und keine fertigen
@@ -26,8 +27,8 @@ Workload-/Agent-Identitäten hinzugekommen. Das vollständige
 | Anbieter | OpenAI, Azure OpenAI, Claude in Azure AI Foundry, Anthropic, AWS Bedrock, Gemini, Vertex AI, Mistral, Ollama, vLLM, OpenAI-kompatibel |
 | Routing | Modellgruppen, vier Strategien, Prioritäten, Retries, Fallbacks, Circuit Breaker, Health Checks |
 | Zugriff | Organisationen, Teams, Nutzer, virtuelle Keys, Workload-/Agent-Identitäten (JWT, Entra Agent ID) |
-| Limits und Kosten | Anfrage-, Token- und Parallelitäts-Limits, Budgets, Preise mit Vorschlägen, drei Zähler-Backends |
-| Guardrails | `pii`, `prompt-filter`, `prompt-leak`, `link-guard`, `language`, `content-safety`, Profile |
+| Limits und Kosten | Anfrage-, Token- und Parallelitäts-Limits, Budgets, Preise mit Vorschlägen, drei Zähler-Backends, Kostenanalyse mit Prognose und Chargeback-Export |
+| Guardrails | `pii`, `prompt-filter`, `prompt-leak`, `link-guard`, `language`, `schema-guard`, `content-safety`, Profile |
 | Erweiterung | Plugin-Kette, Webhooks, WASM-Plugins in der Sandbox mit Ed25519-Signaturen |
 | Tools und MCP | MCP-Gateway mit Freigaben, Tool-Inventar, Tool-Richtlinien |
 | Cache | exakt (RAM, Redis) und semantisch (HNSW, pgvector, Redis Search) |

@@ -1,5 +1,5 @@
 title: Funktionen
-summary: Was ai-gw heute kann – Endpunkte und Anbieter, Routing, Mandanten und Kosten, Guardrails, Cache, MCP-Gateway, Agent-Identitäten, Beobachtung, GitOps und Betrieb.
+summary: Was ai-gw heute kann – Endpunkte und Anbieter, Routing, Mandanten und Kostenanalyse, Guardrails, Cache, MCP-Gateway, Agent-Identitäten, Beobachtung, GitOps und Betrieb.
 toc: ja
 ---
 ai-gw ist ein eigenständiges AI-Gateway nach dem Vorbild bekannter Produkte wie LiteLLM, Kong AI
@@ -31,7 +31,8 @@ OpenAI, Azure OpenAI (API-Key oder Microsoft Entra ID mit Client-Secret, Zertifi
 Identity oder Managed Identity, auch für Sovereign Clouds), Claude in Azure AI Foundry, Anthropic,
 AWS Bedrock (SigV4 oder API-Key), Google Gemini API und Vertex AI (Service-Account), Mistral,
 Ollama, vLLM, generische OpenAI-kompatible Endpunkte und ein eingebauter Mock-Anbieter für Tests.
-Eine Anbieter-Übersicht in der UI zeigt Zustand und Verkehrsanteil je Anbieter.
+Eine Anbieter-Übersicht in der UI zeigt je Anbieter und Endpunkt Anmeldeart, Deployments und
+Zustand (Circuit Breaker, Health Checks); die Übersichtsseite zeigt zusätzlich den Verkehrsanteil.
 
 ## Routing und Resilienz {#routing}
 
@@ -54,6 +55,11 @@ Eine Anbieter-Übersicht in der UI zeigt Zustand und Verkehrsanteil je Anbieter.
   `x-ratelimit-*`-Headern. Zähler lokal, abgeglichen über Postgres oder exakt über Redis.
 - **Kosten und Budgets:** Preistabelle je Modell und Zeitraum (mit Preisvorschlägen),
   Kostenrechnung je Anfrage, Budgets strikt mit Reservierung oder weich, Warnungen per Webhook.
+- **Kostenanalyse (FinOps):** eigene Seite „Kosten“ in der Admin-UI mit Verlauf je Team,
+  Organisation, Modellgruppe, Deployment, Anbieter oder Key, Vergleich mit der Vorperiode, Kosten
+  je Anfrage und je 1000 Tokens, Aufschlüsselung nach Eingabe, Cache und Ausgabe, Ersparnis durch
+  Caching, Plugin-Kosten, Budget-Prognose bis zum Periodenende und Chargeback-Export als CSV oder
+  JSON (mit Kostenstelle) – auch über die Admin-API.
 - **Team-Grenzen:** Team-Admins verwalten Keys und Budgets im Rahmen ihres Teams.
 
 ## Guardrails und Plugins {#guardrails}
@@ -61,8 +67,9 @@ Eine Anbieter-Übersicht in der UI zeigt Zustand und Verkehrsanteil je Anbieter.
 Eine **Plugin-Kette** läuft je Anfrage, Antwort und Stream-Chunk und wird auf den Ebenen global,
 Organisation, Team, Key und Modellgruppe gebunden – mit Vererbung, Reihenfolge, Sperre gegen
 Überschreiben und festgelegtem Verhalten im Fehlerfall. Eingebaut sind unter anderem `pii`,
-`prompt-filter`, `prompt-leak`, `content-safety`, `link-guard`, `language`, `header`,
-`request-transform`, `webhook` und `cache`. Eigene Logik lässt sich als signiertes
+`prompt-filter`, `prompt-leak`, `content-safety`, `link-guard`, `language`, `schema-guard`
+(prüft strukturierte Ausgaben gegen ihr JSON-Schema), `header`, `request-transform`, `webhook`
+und `cache`. Eigene Logik lässt sich als signiertes
 [WASM-Plugin](doku/wasm-plugins.html) in einer Sandbox ausführen.
 
 Drei **Guardrail-Profile** (Basis, Streng, Offen) dienen als Startpunkt und zeigen vor dem
@@ -72,7 +79,7 @@ Anwenden einen Diff. Details: [Guardrails & Sicherheit](sicherheit.html).
 
 - **Exakt:** Schlüssel über Modellgruppe und normalisierte Anfrage, im Speicher (LRU mit
   Größengrenze) oder zusätzlich in Redis; gestreamte Antworten werden als Stream wiedergegeben.
-- **Semantisch:** Embedding der letzten Nutzernachricht, Systemprompt als harter Filter; als
+- **Semantisch:** Embedding der letzten Nutzernachricht, System-Prompt als harter Filter; als
   Index ein eigener HNSW-Index im Speicher, pgvector oder Redis Search.
 - Immer getrennt je Team (oder enger), nie mandantenübergreifend. Der Header
   `x-aigw-cache` zeigt Treffer oder Fehlschlag.

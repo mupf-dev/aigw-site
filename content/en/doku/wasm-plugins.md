@@ -25,7 +25,7 @@ The interface is a WIT world (`aigw:plugin@0.1.0`) with two functions:
 - `describe(config)` is called once when the chain is built, validates the configuration and
   reports the requested phases (request, response, stream event).
 - `handle(input)` receives the phase, payload in the gateway's intermediate representation as JSON,
-  request metadata (request ID, entry format, model group, key, team, organisation) and
+  request metadata (request ID, entry format, model group, key, team, organization) and
   only the client headers that have been explicitly allowed.
 
 The result is an action: **pass through**, **modify**, **block** (like a
@@ -60,7 +60,7 @@ gateway's async workers, so that a slow module does not hold up other requests.
 - **Upload** via admin API or UI with a mandatory SHA-256; name, size
   and the component format are checked. Replacing and deleting require `If-Match`; deletion is only possible without
   referencing bindings.
-- **Only global admins upload**, because a module runs in the gateway process. Organisation and
+- **Only global admins upload**, because a module runs in the gateway process. Organization and
   team admins may **bind** approved modules at their level.
 - Bindings can pin the SHA-256 and thereby allow exactly one version.
 - **Signatures:** With configured trusted keys, ai-gw requires an

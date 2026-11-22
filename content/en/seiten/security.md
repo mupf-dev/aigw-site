@@ -1,5 +1,5 @@
 title: Guardrails & security
-summary: How ai-gw inspects prompts and responses – PII, prompt injection, system-prompt leaks, data exfiltration via links, languages, external content safety – and which protections apply inside the gateway itself.
+summary: How ai-gw inspects prompts and responses – PII, prompt injection, system-prompt leaks, data exfiltration via links, languages, structured output, external content safety – and which protections apply inside the gateway itself.
 toc: ja
 de: sicherheit
 ---
@@ -19,8 +19,9 @@ reject early first, then masking, then external services on the already masked t
 | `prompt-filter` | request, optionally response and stream | word and phrase lists, regex rules, prompt-injection heuristics, length and count limits, invisible Unicode characters |
 | `pii` | request, response, stream | detect personal data and secrets; mask, remove, reject, pseudonymize (with re-identification) or count |
 | `prompt-leak` | request, response, stream | system-prompt leaks via a canary token, optionally verbatim excerpts |
-| `link-guard` | response, stream | prevent exfiltration via links and images to foreign domains |
+| `link-guard` | response, stream, optionally request | prevent exfiltration via links and images to foreign domains |
 | `language` | request, optionally response | allowed or blocked languages |
+| `schema-guard` | response, stream | validate structured output (JSON schema, JSON mode, forced tools) against its schema |
 | `content-safety` | request, response, stream | external checks via Azure AI Content Safety, OpenAI Moderation or a custom guard model |
 
 Rejected responses come back in the client's format (e.g. `finish_reason: content_filter` or a
@@ -68,6 +69,18 @@ confidential data into an image URL. The chat client loads the image when render
 click, and the data ends up with the attacker. `link-guard` removes images pointing to foreign
 domains and can defuse links, query parameters or long paths; allowed domains are configured
 explicitly.
+
+## Languages and structured output {#language}
+
+`language` admits only allowed languages or blocks specific ones (ISO 639-1) – on the input and,
+if desired, on the output. Detection runs locally without an external service; texts that are too
+short or ambiguous can be exempted via a minimum length and minimum confidence.
+
+`schema-guard` validates responses for which the client requested a JSON schema (OpenAI
+`response_format`, Anthropic `output_config.format`), checks JSON-mode responses for valid JSON
+and validates the arguments of forced tool calls against their parameter schema. On a violation
+the response is flagged, rejected or requested again up to three times; retries are billed as
+plugin costs. Schemas are limited in size and depth and evaluated without network or file access.
 
 ## External content safety {#content-safety}
 

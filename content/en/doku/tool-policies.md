@@ -9,7 +9,7 @@ With every model request, applications send along the tools the model may call �
 coding assistants, for example, all the tools of their MCP servers as `mcp__<server>__<tool>`. The gateway
 does not run these tools, but it sees them in full. ai-gw makes use of exactly that:
 
-- **Inventory:** every tool with name, kind, presumed origin, client, organisation, team and
+- **Inventory:** every tool with name, kind, presumed origin, client, organization, team and
   key, first and last sighting, number of requests and of calls by the model.
 - **Changes and suspicion:** changed descriptions or schemas of known tools (“rug pull”)
   and descriptions with prompt-injection signals are flagged, audited and reported.
@@ -39,14 +39,14 @@ Sign-in ─► Body ─► Model grant ─► [Tool policies + inventory] ─►
 | Kind | Function with JSON schema, versioned server tool of a provider, or built-in tool |
 | Origin | MCP server from the name pattern (`mcp__<server>__<tool>` or `<server>__<tool>`), otherwise “client” |
 | Client | Configurable header (e.g. `x-aigw-client`), otherwise `User-Agent` |
-| Assignment | Organisation, team, key and name – one entry per application |
+| Assignment | Organization, team, key and name – one entry per application |
 
 For description and schema, ai-gw stores one hash each; the schema is hashed as a JSON tree,
 independent of whitespace and key order. The **contents** are only
 stored if the key's payload policy allows it – complete or masked. The description is always
 checked, in memory.
 
-On the hot path the inventory costs little: known definitions are recognised by a fast
+On the hot path the inventory costs little: known definitions are recognized by a fast
 fingerprint keyed randomly per process; only new or changed definitions
 are copied. A background task writes the inventory to the database in batches – never in the
 request path. Multiple instances write additively to the same entries.
@@ -81,7 +81,7 @@ tool in the context of the request:
 
 1. A matching **locked** block always wins, regardless of level.
 2. Otherwise the matching `allow` or `block-*` policy of the **most specific level** applies
-   (key before model group before team before organisation before global); at the same level, the stricter one.
+   (key before model group before team before organization before global); at the same level, the stricter one.
 3. Without such a policy, a matching `require-approval` policy applies: the tool is not
    approved until an `allow` policy covers it.
 4. Otherwise the tool is allowed. `observe` changes nothing, but logs and counts.

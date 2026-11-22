@@ -6,7 +6,7 @@ quelle: Concept 15 “MCP gateway”
 de: mcp-gateway
 ---
 The Model Context Protocol (MCP) connects AI applications with tools and data sources.
-In organisations, MCP servers quickly proliferate, with their credentials stored separately in every
+In organizations, MCP servers quickly proliferate, with their credentials stored separately in every
 IDE and every agent. ai-gw consolidates them: clients talk to one
 endpoint and see exactly the tools, prompts and resources granted to their key, and the
 gateway sets the upstream credentials, applies limits and logs every
@@ -70,7 +70,7 @@ MCP server entry cannot serve as a stepping stone into the internal network.
 ## Limits, log and metrics {#beobachtung}
 
 - Every tool call (and every list request) counts as a request in the limits of key, team and
-  organisation; hard budget limits also block tool calls. In addition there are upper bounds for
+  organization; hard budget limits also block tool calls. In addition there are upper bounds for
   MCP sessions per key and team, timeouts and a maximum message size.
 - Every tool call appears in the request log with server, tool, status, duration and key; arguments
   and results only according to the payload policy (sizes only, masked or complete).

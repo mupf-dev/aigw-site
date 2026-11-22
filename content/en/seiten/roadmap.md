@@ -9,10 +9,11 @@ ai-gw has been public since November 2026. The planned feature set of the first 
 **implemented and tested**: data plane with OpenAI and Anthropic input, all listed providers,
 routing and resilience, tenants, limits and budgets, a plugin chain with guardrails, response
 cache, MCP gateway, admin API and admin UI, GitOps, observability, SQLite and Postgres, container
-image for amd64 and arm64. Since then, WASM plugins with signatures, tool inventory and tool
-policies, further guardrails (`prompt-leak`, `link-guard`, `language`, invisible characters),
-guardrail profiles, Microsoft Entra ID in many places and workload/agent identities have been
-added, among others. The full
+image. Since then, WASM plugins with signatures, tool inventory and tool policies, further
+guardrails (`prompt-leak`, `link-guard`, `language`, `schema-guard`, invisible characters),
+guardrail profiles, Microsoft Entra ID in many places, workload/agent identities (Microsoft Entra
+Agent ID), cost analysis with budget forecasts and chargeback export, and the arm64 container image
+have been added, among others. The full
 [changelog](https://github.com/mupf-dev/ai-gw/blob/main/CHANGELOG.md) is in the repository.
 
 > **No release yet.** There is no published version and no ready-made container images yet; you
@@ -27,8 +28,8 @@ added, among others. The full
 | Providers | OpenAI, Azure OpenAI, Claude in Azure AI Foundry, Anthropic, AWS Bedrock, Gemini, Vertex AI, Mistral, Ollama, vLLM, OpenAI-compatible |
 | Routing | model groups, four strategies, priorities, retries, fallbacks, circuit breakers, health checks |
 | Access | organizations, teams, users, virtual keys, workload/agent identities (JWT, Entra Agent ID) |
-| Limits and costs | request, token and concurrency limits, budgets, prices with suggestions, three counter backends |
-| Guardrails | `pii`, `prompt-filter`, `prompt-leak`, `link-guard`, `language`, `content-safety`, profiles |
+| Limits and costs | request, token and concurrency limits, budgets, prices with suggestions, three counter backends, cost analysis with forecasts and chargeback export |
+| Guardrails | `pii`, `prompt-filter`, `prompt-leak`, `link-guard`, `language`, `schema-guard`, `content-safety`, profiles |
 | Extensibility | plugin chain, webhooks, sandboxed WASM plugins with Ed25519 signatures |
 | Tools and MCP | MCP gateway with grants, tool inventory, tool policies |
 | Cache | exact (RAM, Redis) and semantic (HNSW, pgvector, Redis Search) |

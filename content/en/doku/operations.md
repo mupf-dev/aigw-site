@@ -7,7 +7,7 @@ de: betrieb
 ---
 The operations manual in the repository (`docs/betrieb/`) describes installation, configuration,
 data storage, monitoring, sign-in via OIDC, troubleshooting, hardening and performance in detail.
-This page summarises the most important recommendations.
+This page summarizes the most important recommendations.
 
 ## Network and listeners {#netz}
 
@@ -34,17 +34,16 @@ This page summarises the most important recommendations.
   re-encryption.
 - In GitOps manifests, use only references to environment variables (`AIGW_SECRET_*`) or files,
   never plaintext.
-- Store the optional snapshot cache only on a path that only the
-  gateway user can write; its maximum age limits how long a start without a
-  database with an old state is possible.
+- Store the optional snapshot cache only on a path that nobody but the gateway user can write;
+  its maximum age limits how long the gateway can start without a database from an old state.
 
 ## Data storage and multiple instances {#datenhaltung}
 
 | Setup | Database | Counters | Note |
 |---|---|---|---|
 | Single instance | SQLite in a volume | local | simplest operation |
-| Multiple instances | Postgres | Redis (exact) or reconciliation via Postgres | Changes take effect everywhere in under a second via LISTEN/NOTIFY |
-| Load operation | Postgres | Redis | Otherwise the request log writer competes with budget reconciliation |
+| Multiple instances | Postgres | Redis (exact) or reconciliation via Postgres | changes take effect everywhere in under a second via LISTEN/NOTIFY |
+| High load | Postgres | Redis | otherwise the request log writer competes with budget reconciliation |
 
 Database migrations run at startup; database backups contain credentials only in
 encrypted form. If the database fails during operation, the gateway continues with the last snapshot;
@@ -57,13 +56,13 @@ if Redis fails, it continues counting locally.
 - The **bootstrap token** is valid only until the first global admin exists via OIDC or admin API key, and
   then expires automatically.
 - The `gitops` role by default does not write users with roles or admin keys.
-- Allow Entra sign-in via workload or managed identity to provider credentials only explicitly;
+- Allow Entra sign-in to providers via workload or managed identity only by explicit opt-in;
   store certificate keys encrypted where possible.
 - Invitation links are bearer tokens and belong in a confidential channel.
 
 ## Data plane {#datenebene}
 
-- Keys with expiry date, limits and budgets per organisation and team; revoked keys take effect
+- Keys with expiry date, limits and budgets per organization and team; revoked keys take effect
   immediately, across instances as well.
 - With multiple instances, operate limits for concurrent requests with Redis counters; with
   reconciliation via Postgres they apply per instance.
@@ -72,7 +71,7 @@ if Redis fails, it continues counting locally.
   capacity limit and limit the number of checks per request. Connect Azure AI Content
   Safety preferably with Entra ID instead of an API key.
 - **Payload logging** only where necessary. Only `admin` and `auditor` read contents; where
-  compliance obligations exist, set an upper bound at the organisation and lock it.
+  compliance obligations exist, set an upper bound at the organization and lock it.
 
 ## Plugins {#plugins}
 
@@ -101,8 +100,8 @@ if Redis fails, it continues counting locally.
 
 ## Dependencies {#abhaengigkeiten}
 
-The check chain runs `cargo deny` (licences and security advisories); for the UI additionally
+The check chain runs `cargo deny` (licenses and security advisories); for the UI additionally
 `pnpm audit`. Deliberately accepted exceptions are documented with reasons and a review date in the
 repository's configuration.
 
-Performance data and recommendations for load operation: [Performance and load comparison](performance.html).
+Performance data and recommendations for high load: [Performance and load comparison](performance.html).

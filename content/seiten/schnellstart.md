@@ -122,8 +122,8 @@ docker compose ps                                        # aigw: healthy
 
 `deploy/kubernetes/` enthält ein kustomize-Grundgerüst: ConfigMap mit der Startkonfiguration,
 Deployment mit zwei Replikaten (nicht-root, schreibgeschütztes Dateisystem), Services für Daten-
-und Steuerebene , Probes auf `/healthz` und `/readyz` sowie ein PodDisruptionBudget. Den Master-Key als Secret einbinden,
-die Steuerebene nur intern veröffentlichen.
+und Steuerebene, Probes auf `/healthz` und `/readyz` sowie ein PodDisruptionBudget. Den Master-Key
+als Secret einbinden, die Steuerebene nur intern veröffentlichen.
 
 ## Ohne Container {#binary}
 

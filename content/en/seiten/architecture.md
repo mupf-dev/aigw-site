@@ -111,8 +111,8 @@ fields are preserved where the target format knows them.
 - **Backpressure:** data is read only when the client consumes it; there is no unbounded buffer.
 - A **client abort** cancels the provider request immediately; if usage is missing, it is
   estimated and marked as estimated.
-- Stream plugins work on a sliding window; if the whole response must be checked, the route
-  switches to “buffered”.
+- Stream plugins work on a sliding window; if the whole response must be checked, the route can
+  be switched to “buffered”.
 
 ## Limits, counters and budgets {#zaehler}
 
@@ -125,7 +125,7 @@ counting locally. Budgets can be strict (reserved before the request) or soft (s
 SQLite is the default for a single instance. For multiple instances behind a load balancer,
 Postgres serves as the shared database; counters then use `postgres-sync` or Redis, and the
 semantic cache optionally pgvector or Redis Search. Provider credentials are stored encrypted with
-AES-256-GCM in the database; the master key never is. The request log is buffered and written in
+AES-256-GCM in the database; the master key is never stored there. The request log is buffered and written in
 batches and can also be exported via OpenTelemetry or as JSON Lines.
 
 ## Technology {#technik}

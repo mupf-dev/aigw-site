@@ -75,8 +75,8 @@ hero: ja
     <ul class="features">
       <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/></svg></span><h3>Ein Format, viele Anbieter</h3><p>OpenAI- und Anthropic-kompatible Endpunkte für Chat, Responses, Embeddings, Bilder und Audio. Übersetzung über eine gemeinsame Zwischendarstellung – inklusive Tools, Vision und Streaming.</p></li>
       <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="12" r="2"/><path d="M8 6h3a3 3 0 0 1 3 3v0a3 3 0 0 0 2 2.8M8 18h3a3 3 0 0 0 3-3v0a3 3 0 0 1 2-2.8"/></svg></span><h3>Routing und Resilienz</h3><p>Modellgruppen mit Aliasen, gewichtete Verteilung, geringste Latenz oder Last, Prioritäten (z. B. reservierte Kapazität zuerst), Retries, Fallback-Ketten und Circuit Breaker.</p></li>
-      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4a3 3 0 0 1 0 6M18 14c2 .7 3 2.8 3 6"/></svg></span><h3>Mandanten, Limits, Budgets</h3><p>Organisationen, Teams und virtuelle API-Keys mit Modellfreigaben, Anfrage- und Token-Limits, Budgets mit Warnschwellen und Kosten je Modell, Team und Key.</p></li>
-      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><h3>Guardrails</h3><p>PII-Erkennung und -Maskierung, Prompt-Injection-Heuristik, Wort- und Regex-Regeln, Canary-Token gegen System-Prompt-Lecks, Link-Schutz, Sprachfilter und externe Inhaltsprüfung.</p></li>
+      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4a3 3 0 0 1 0 6M18 14c2 .7 3 2.8 3 6"/></svg></span><h3>Mandanten, Limits, Kosten</h3><p>Organisationen, Teams und virtuelle API-Keys mit Modellfreigaben, Anfrage- und Token-Limits und Budgets mit Warnschwellen. Kostenanalyse je Team, Modell, Anbieter und Key mit Budget-Prognose und Chargeback-Export.</p></li>
+      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><h3>Guardrails</h3><p>PII-Erkennung und -Maskierung, Prompt-Injection-Heuristik, Wort- und Regex-Regeln, Canary-Token gegen System-Prompt-Lecks, Link-Schutz, Sprachfilter, Schema-Prüfung strukturierter Ausgaben und externe Inhaltsprüfung.</p></li>
       <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="8.5" y="14" width="7" height="7" rx="1"/><path d="M6.5 10v2h11v-2M12 12v2"/></svg></span><h3>MCP-Gateway und Tool-Richtlinien</h3><p>MCP-Server hinter einem Endpunkt, Freigaben je Team und Key bis auf Tool-Ebene, Inventar aller Tools, die Anwendungen mitschicken, und Richtlinien gegen riskante Tools.</p></li>
       <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4M12 15v2"/></svg></span><h3>Agent-Identitäten</h3><p>KI-Agenten melden sich mit signierten Access-Tokens an, etwa aus Microsoft Entra Agent ID – ohne verteilten Gateway-Key. Es gelten dieselben Regeln wie für den zugeordneten Key.</p></li>
       <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg></span><h3>Antwort-Cache</h3><p>Exakter Cache im Speicher oder in Redis, semantischer Cache mit eigenem HNSW-Index, pgvector oder Redis Search – immer getrennt je Team.</p></li>
@@ -94,6 +94,7 @@ hero: ja
       <p class="muted-lead">Die Admin-Oberfläche ist in das Binary eingebettet. Sie zeigt Anfragen, Tokens, Kosten, Latenz, Fehler und Cache-Treffer je Team und Modell, verwaltet Modelle, Keys, Guardrails und MCP-Server und folgt hell/dunkel der Systemeinstellung.</p>
       <ul class="checks">
         <li><strong>Log-Explorer</strong> mit Fallback-Versuchen, Cache-Treffern und Kosten je Anfrage</li>
+        <li><strong>Kosten</strong> mit Verlauf, Kostentreibern, Budget-Prognose und Chargeback-Export</li>
         <li><strong>Playground</strong> im Namen eines Keys – mit dessen Limits und Guardrails</li>
         <li><strong>Guardrail-Profile</strong> (Basis, Streng, Offen) mit Diff vor dem Anwenden</li>
         <li><strong>YAML-Import/-Export</strong> mit Trockenlauf, Anmeldung per OIDC, Rollen</li>
@@ -135,7 +136,7 @@ hero: ja
       <p>ai-gw ruft die Anbieter mit den hinterlegten Zugangsdaten des Betreibers auf. Geheimnisse liegen verschlüsselt (AES-256-GCM) in der Datenbank oder werden aus Umgebung und Dateien gelesen.</p>
     </div>
     <div class="svc">
-      <div class="table-wrap"><table>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Unterstützte Anbieter"><table>
         <caption class="sr-only">Unterstützte Anbieter und Anmeldearten</caption>
         <thead><tr><th scope="col">Anbieter</th><th scope="col">Anmeldung</th></tr></thead>
         <tbody>

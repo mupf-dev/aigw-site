@@ -12,17 +12,17 @@ The figures on this page come from runs in November 2026.
 > **Context.** Measurements were taken against a test upstream that responds immediately. With real
 > model providers, with response times from hundreds of milliseconds to seconds, the overhead of
 > any gateway is small; what matters then is mainly CPU per request, memory, throughput per core
-> and behaviour under many concurrent streams.
+> and behavior under many concurrent streams.
 
 ## Test setup {#aufbau}
 
-- **Machine:** 8 vCPU (AMD EPYC, virtualised), 16 GB RAM, Linux. The machine was not exclusive during
+- **Machine:** 8 vCPU (AMD EPYC, virtualized), 16 GB RAM, Linux. The machine was not exclusive during
   the measurements; all measurement processes therefore ran at real-time priority on
   fixed cores. Absolute values vary between runs by 20 to 30 percent; ratios
   within a run are reliable.
 - **Separate cores:** test upstream (OpenAI-compatible, JSON and SSE) on two cores, the
   gateway on **two cores**, the load generator (keep-alive) on the rest.
-- **Realistic chain without plugins:** API key check, organisation, team and key with limits and
+- **Realistic chain without plugins:** API key check, organization, team and key with limits and
   budgets, cost calculation via a price, request log enabled, routing with active retries
   and circuit breakers.
 - **Overhead** = gateway minus a direct call to the upstream in the same scenario (percentiles
@@ -63,7 +63,7 @@ are not reflected in the figures.
 
 | Variant | Setup |
 |---|---|
-| ai-gw with SQLite | Container from the repository; key with organisation, team and key limits, budgets, price, request log |
+| ai-gw with SQLite | Container from the repository; key with organization, team and key limits, budgets, price, request log |
 | ai-gw with Postgres | as above, Postgres 17 |
 | LiteLLM without database | official image v1.108.8 (LTS); check against the master key – without a database the only key type |
 | LiteLLM with Postgres | official database image v1.108.8; virtual key with models, budget, RPM and TPM limit; spend logs on |

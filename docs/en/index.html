@@ -111,8 +111,8 @@
     <ul class="features">
       <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/></svg></span><h3>One format, many providers</h3><p>OpenAI- and Anthropic-compatible endpoints for chat, responses, embeddings, images and audio. Translation through a shared intermediate representation – including tools, vision and streaming.</p></li>
       <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="12" r="2"/><path d="M8 6h3a3 3 0 0 1 3 3v0a3 3 0 0 0 2 2.8M8 18h3a3 3 0 0 0 3-3v0a3 3 0 0 1 2-2.8"/></svg></span><h3>Routing and resilience</h3><p>Model groups with aliases, weighted distribution, least latency or least busy, priorities (e.g. reserved capacity first), retries, fallback chains and circuit breakers.</p></li>
-      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4a3 3 0 0 1 0 6M18 14c2 .7 3 2.8 3 6"/></svg></span><h3>Tenants, limits, budgets</h3><p>Organizations, teams and virtual API keys with model access, request and token limits, budgets with alert thresholds and costs per model, team and key.</p></li>
-      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><h3>Guardrails</h3><p>PII detection and masking, prompt-injection heuristics, word and regex rules, canary tokens against system-prompt leaks, link protection, language filters and external content safety.</p></li>
+      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4a3 3 0 0 1 0 6M18 14c2 .7 3 2.8 3 6"/></svg></span><h3>Tenants, limits, costs</h3><p>Organizations, teams and virtual API keys with model access, request and token limits and budgets with alert thresholds. Cost analysis per team, model, provider and key with budget forecasts and chargeback export.</p></li>
+      <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><h3>Guardrails</h3><p>PII detection and masking, prompt-injection heuristics, word and regex rules, canary tokens against system-prompt leaks, link protection, language filters, schema validation of structured output and external content safety.</p></li>
       <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="8.5" y="14" width="7" height="7" rx="1"/><path d="M6.5 10v2h11v-2M12 12v2"/></svg></span><h3>MCP gateway and tool policies</h3><p>MCP servers behind one endpoint, grants per team and key down to individual tools, an inventory of all tools that applications send along, and policies against risky tools.</p></li>
       <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4M12 15v2"/></svg></span><h3>Agent identities</h3><p>AI agents sign in with signed access tokens, for example from Microsoft Entra Agent ID – no gateway key to distribute. The same rules apply as for the mapped key.</p></li>
       <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg></span><h3>Response cache</h3><p>Exact cache in memory or Redis, semantic cache with a built-in HNSW index, pgvector or Redis Search – always partitioned per team.</p></li>
@@ -125,11 +125,12 @@
 <section class="section alt" aria-labelledby="oberflaeche-kurz">
   <div class="wrap split">
     <div>
-      <p class="eyebrow">Admin-UI</p>
+      <p class="eyebrow">Admin UI</p>
       <h2 id="oberflaeche-kurz" class="h2-plain">Traffic, cost and health at a glance.</h2>
       <p class="muted-lead">The admin UI is embedded in the binary. It shows requests, tokens, cost, latency, errors and cache hits per team and model, manages models, keys, guardrails and MCP servers, and follows your system's light/dark setting.</p>
       <ul class="checks">
         <li><strong>Log explorer</strong> with fallback attempts, cache hits and cost per request</li>
+        <li><strong>Costs</strong> with trends, cost drivers, budget forecasts and chargeback export</li>
         <li><strong>Playground</strong> on behalf of a key – with its limits and guardrails</li>
         <li><strong>Guardrail profiles</strong> (basic, strict, open) with a diff before applying</li>
         <li><strong>YAML import/export</strong> with dry run, OIDC sign-in, roles</li>
@@ -171,7 +172,7 @@
       <p>ai-gw calls providers with the operator's stored credentials. Secrets are encrypted (AES-256-GCM) in the database or read from the environment and files.</p>
     </div>
     <div class="svc">
-      <div class="table-wrap"><table>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Supported providers"><table>
         <caption class="sr-only">Supported providers and authentication methods</caption>
         <thead><tr><th scope="col">Provider</th><th scope="col">Authentication</th></tr></thead>
         <tbody>
